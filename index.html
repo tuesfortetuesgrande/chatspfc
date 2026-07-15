@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+<title>Chat Tú és Forte, Tú és Grande — São Paulo FC</title>
+<meta name="description" content="Chat profissional do Tricolor com avatares, reações, edição, respostas, temas, TV online, quiz e mais." />
+
+<!-- ===== PWA META TAGS ===== -->
+<meta name="theme-color" content="#e10600" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Tricolor Chat" />
+<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkNoYXQgVMO6IMOpcyBGb3J0ZSwgVMO6IMOpcyBHcmFuZGUiLAogICJzaG9ydF9uYW1lIjogIlRyaWNvbG9yIENoYXQiLAogICJkZXNjcmlwdGlvbiI6ICJDaGF0IGUgY29udGXDumRvcyBwYXJhIHRvcmNlZG9yZXMgZG8gU8OjbyBQYXVsbyBGQyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZTEwNjAwIiwKICAidGhlbWVfY29sb3IiOiAiI2UxMDYwMCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInPjxjaXJjbGUgY3g9JzI1NicgY3k9JzI1Nicgcj0nMjUwJyBmaWxsPScjZTEwNjAwJy8+PHRleHQgeD0nMjU2JyB5PScyODAnIGZvbnQtc2l6ZT0nMjAwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSd3aGl0ZScgZm9udC1mYW1pbHk9J3NhbnMtc2VyaWYnPuKdpDwvdGV4dD48L3N2Zz4iLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFzayBhbnlzaXplIgogICAgfQogIF0sCiAgInNjb3BlcyI6IFsibG9jYWwiXSwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAib3JpZW50YXRpb24iOiAiYW55IiwKICAicHJlZmVyX3JlbGF0ZWRfYXBwbGljYXRpb25zIjogW10sCiAgInN0YXJ0X3VybCI6ICIuIiwKICAic2NvcGUiOiAibG9jYWwiLAogICJkaXJlY3Rpb25zIjogW3sibGFuZyI6ICJwdC1CUiIsICJkaXJlY3Rpb24iOiAibHRyIn1dLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJzaG9ydF9uYW1lIjogIlRyaWNvbG9yIENoYXQiLAogICJkZXNjcmlwdGlvbiI6ICJDaGF0IGRvIFPDg8NvIFBhdWxvIEZDIiwKICAiaWNvbnMiOiBbXSwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAib3JpZW50YXRpb24iOiAiYW55Igp9" />
+
+<script>
+  // ============================================================
+  // SERVICE WORKER INLINE (via Blob) - offline cache e instalação
+  // ============================================================
+  (function registerSW() {
+    // Cria o código do service worker como string
+    const swCode = `
+      self.addEventListener('install', e => {
+        e.waitUntil(
+          caches.open('tricolor-chat-v1').then(cache => {
+            return cache.addAll([
+              '/',
+              '/index.html'
+            ]);
+          })
+        );
+      });
+      self.addEventListener('fetch', e => {
+        e.respondWith(
+          caches.match(e.request).then(res => res || fetch(e.request))
+        );
+      });
+    `;
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(swUrl)
+        .then(reg => console.log('✅ SW registrado:', reg))
+        .catch(err => console.warn('⚠️ SW não registrado:', err));
+    }
+  })();
+</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --background:#f6f3f1; --foreground:#1a1213; --card:#ffffff;
+    --muted:#ebe7e5; --muted-foreground:#6b5e60;
+    --border:#e6dfdd; --secondary:#f1ecea; --secondary-foreground:#1a1213;
+    --primary:#e10600; --primary-foreground:#ffffff;
+    --accent:#1a1a1a; --destructive:#dc2626; --ring:#e10600;
+    --popover:#ffffff; --popover-foreground:#1a1213;
+    --chat-bg:#f7f1f0;
+    --bubble-me:#e10600; --bubble-me-fg:#ffffff;
+    --bubble-other:#ffffff; --bubble-other-fg:#1a1213;
+    --gradient-hero:linear-gradient(135deg,#e10600,#1a1a1a);
+    --shadow-bubble:0 2px 8px -2px rgba(26,18,19,0.06),0 4px 12px -2px rgba(26,18,19,0.04);
+  }
+  .dark{
+    --background:#120c0d; --foreground:#f6f3f1; --card:#1a1213;
+    --muted:#2c2022; --muted-foreground:#a39597;
+    --border:#2c2022; --secondary:#23191b; --secondary-foreground:#f6f3f1;
+    --bubble-other:#1a1213; --bubble-other-fg:#f6f3f1;
+    --chat-bg:#0f090a;
+  }
+  *{box-shadow:none!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  body{background-color:var(--background);color:var(--foreground);transition:background-color .2s,color .2s}
+  .gradient-hero{background:var(--gradient-hero)}
+  .chat-bg-area{background-color:var(--chat-bg)}
+  .shadow-bubble{box-shadow:var(--shadow-bubble)!important}
+  .scrollbar-thin::-webkit-scrollbar{width:5px;height:5px}
+  .scrollbar-thin::-webkit-scrollbar-track{background:transparent}
+  .scrollbar-thin::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+  @keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes slideLeft{from{transform:translateX(100%);}to{transform:translateX(0);}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .anim-slide-up{animation:slideUp .3s cubic-bezier(0.16,1,0.3,1) forwards}
+  .anim-slide-left{animation:slideLeft .3s cubic-bezier(0.16,1,0.3,1) forwards}
+  .anim-fade{animation:fadeIn .2s ease forwards}
+
+  /* ===== CORREÇÃO: classes customizadas de fundo e texto ===== */
+  .bg-card { background-color: var(--card); }
+  .bg-background { background-color: var(--background); }
+  .bg-secondary { background-color: var(--secondary); }
+  .bg-muted { background-color: var(--muted); }
+  .bg-popover { background-color: var(--popover); }
+  .bg-primary { background-color: var(--primary); }
+  .bg-destructive { background-color: var(--destructive); }
+
+  .text-foreground { color: var(--foreground); }
+  .text-muted-foreground { color: var(--muted-foreground); }
+  .text-primary { color: var(--primary); }
+  .text-primary-foreground { color: var(--primary-foreground); }
+  .text-popover-foreground { color: var(--popover-foreground); }
+  .text-secondary-foreground { color: var(--secondary-foreground); }
+  .text-destructive { color: var(--destructive); }
+
+  .border-border { border-color: var(--border); }
+  .ring-ring { --tw-ring-color: var(--ring); }
+</style>
+</head>
+<body class="min-h-screen">
+<div id="app"></div>
+
+<script type="module">
+  // IMPORTAÇÕES DO FIREBASE CONFIGURADAS COMO MÓDULO
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    onSnapshot, 
+    query, 
+    orderBy, 
+    doc, 
+    updateDoc, 
+    deleteDoc 
+  } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // Configurações do seu projeto Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyCo1dC85Hm8ba2t1ZNN_rVhdWh7WNdgaLg",
+    authDomain: "chattricolor.firebaseapp.com",
+    projectId: "chattricolor",
+    storageBucket: "chattricolor.firebasestorage.app",
+    messagingSenderId: "118301843283",
+    appId: "1:118301843283:web:2d03b77cb52553af500ba6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  /* ===================== DATA ===================== */
+  // Coloque os links diretos terminados em .jpg ou .png aqui dentro
+  const AVATAR_SEEDS = [
+    "https://is.zobj.net/image-server/v1/images?r=OPxZY6gXmM7ojcjwU7GyDBibwKkCJju9UkwoUhmkBjbnQIKOXp22oEMk0cHvGLXLRzplF5ZkCwvYIwPHhavOMYbQG8YcPp1aeRvQzzyo3cAaJ6eeLPCF8UVXuTfwMv1NkGxLCUJvZg6rAEojgT2oF6HZkH8J5qAW-DfxH4AQqZ2qissn_zYZjFd-rDCgSifLzzzcuaPsa2GxWp11UX6OhIdx1WD9syS3qb913w",
+    "https://w0.peakpx.com/wallpaper/594/964/HD-wallpaper-cria-favela-trap.jpg",
+    "https://i.pinimg.com/736x/57/7f/cc/577fcc292fc025fa6fcf8a2470f89f48.jpg",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSps-m8uYQTkJA49YslW3b3aCTWPwODyu9fLBce-lLFbg&s=10",
+    "https://i.pinimg.com/originals/17/3f/9f/173f9fc74cf65b4b105e1ff50d86569a.jpg",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2pdsvWNUr1uUHl8zOgk12naQzNehf_XvpWMqu6pfs3w&s=10",
+    "https://i.pinimg.com/236x/b9/af/0d/b9af0d8625fd1dd7d2593875dd320784.jpg",
+    "https://i.pinimg.com/736x/11/30/8e/11308ee52fd3a51fa9c57faa261de549.jpg",
+    "https://i.pinimg.com/474x/8d/d1/15/8dd11585d5fb60c8ef1aac6ace1eef48.jpg",
+    "https://i.pinimg.com/736x/a4/6b/71/a46b71784358db5f9070025491c65e5b.jpg",
+    "https://i.pinimg.com/736x/4b/af/a3/4bafa3042fd5e55e2e0de2b40fd73928.jpg",
+    "https://i.pinimg.com/736x/5e/25/35/5e2535279df34aef0c738adecf1aad69.jpg"
+  ];
+  
+  const avatarUrl = s => s;
+
+const REACTIONS = [
+  { k: "like",  img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.webp", label: "Curtir" },
+  { k: "dislike", img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44e/512.webp", label: "Não curti" },
+  { k: "love",  img: "https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/512.webp", label: "Amei" },
+  { k: "haha",  img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f606/512.webp", label: "Haha" },
+  { k: "wow",   img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62e/512.webp", label: "Uau" },
+  { k: "sad",   img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f622/512.webp", label: "Triste" },
+  { k: "angry", img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f621/512.webp", label: "Grilo" },
+  // Novos ícones adicionados:
+  { k: "victory", img: "https://fonts.gstatic.com/s/e/notoemoji/latest/270c_fe0f/512.webp", label: "Vitória" },
+  { k: "grimace", img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62c/512.webp", label: "Careta" },
+  { k: "eyes",    img: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f440/512.webp", label: "Olhos" }
+];
+
+  const BOT = { nick:"Echo", avatar: avatarUrl("https://pbs.twimg.com/profile_images/1932619787915460609/neavIsq_.jpg") };
+  const BOT_REPLIES = ["Bem vindo ao chat!😄"];
+
+const ADS = [
+  {
+    tag: "Anúncio",
+    title: "TurboHost — Hospedagem ultra-rápida",
+    desc: "SSD NVMe, SSL grátis e suporte 24/7. A partir de R$ 9,90/mês.",
+    cta: "Assinar agora",
+    gradient: "linear-gradient(135deg,#6366f1,#a855f7)",
+    icon: "🚀",
+    image: "https://via.placeholder.com/150", // Substitua pela sua URL real
+    url: "#"
+  },
+  {
+    tag: "Patrocinado",
+    title: "PixelPro — Cursos de Design",
+    desc: "Aprenda UI/UX do zero ao avançado com projetos reais.",
+    cta: "Ver cursos",
+    gradient: "linear-gradient(135deg,#ec4899,#8b5cf6)",
+    icon: "🎨",
+    image: "https://via.placeholder.com/150", // Substitua pela sua URL real
+    url: "#"
+  },
+  {
+    tag: "Oferta",
+    title: "CloudDrive — 2TB por R$ 19/mês",
+    desc: "Backup automático, sincronia entre dispositivos e segurança total.",
+    cta: "Quero testar",
+    gradient: "linear-gradient(135deg,#0ea5e9,#6366f1)",
+    icon: "☁️",
+    image: "https://via.placeholder.com/150", // Substitua pela sua URL real
+    url: "#"
+  },
+  {
+    tag: "Ads",
+    title: "FitLife App — Treine em casa",
+    desc: "Planos personalizados e acompanhamento de evolução diária.",
+    cta: "Baixar grátis",
+    gradient: "linear-gradient(135deg,#f59e0b,#ef4444)",
+    icon: "💪",
+    image: "https://via.placeholder.com/150", // Substitua pela sua URL real
+    url: "#"
+  },
+];
+
+  const THEMES = [
+    {name:"SPFC Clássico",swatch:"linear-gradient(135deg,#e10600,#1a1a1a)",vars:{"--primary":"#e10600","--ring":"#e10600","--bubble-me":"#e10600","--accent":"#1a1a1a","--gradient-hero":"linear-gradient(135deg,#e10600,#1a1a1a)"}},
+    {name:"Tricolor Bold",swatch:"linear-gradient(135deg,#ff1a1a,#000,#fff)",vars:{"--primary":"#ff1a1a","--ring":"#ff1a1a","--bubble-me":"#ff1a1a","--accent":"#000","--gradient-hero":"linear-gradient(135deg,#ff1a1a,#000)"}},
+    {name:"Morumbi Night",swatch:"linear-gradient(135deg,#1a1a1a,#7a0000)",vars:{"--primary":"#7a0000","--ring":"#7a0000","--bubble-me":"#7a0000","--accent":"#0d0d0d","--gradient-hero":"linear-gradient(135deg,#3a0d0d,#0d0d0d)"}},
+    {name:"Soberano Gold",swatch:"linear-gradient(135deg,#c9a84c,#1a1a1a)",vars:{"--primary":"#c9a84c","--ring":"#c9a84c","--bubble-me":"#a88a3a","--accent":"#1a1a1a","--gradient-hero":"linear-gradient(135deg,#a88a3a,#1a1a1a)"}},
+    {name:"Indigo Pro",swatch:"linear-gradient(135deg,#4f46e5,#1e1b4b)",vars:{"--primary":"#4f46e5","--ring":"#4f46e5","--bubble-me":"#6366f1","--accent":"#7c3aed","--gradient-hero":"linear-gradient(135deg,#4f46e5,#7c3aed)"}},
+    {name:"Esmeralda",swatch:"linear-gradient(135deg,#0d7a5f,#c9a84c)",vars:{"--primary":"#0d7a5f","--ring":"#0d7a5f","--bubble-me":"#0d7a5f","--accent":"#c9a84c","--gradient-hero":"linear-gradient(135deg,#0d7a5f,#c9a84c)"}},
+    {name:"Oceano",swatch:"linear-gradient(135deg,#0ea5e9,#0c2340)",vars:{"--primary":"#0ea5e9","--ring":"#0ea5e9","--bubble-me":"#0ea5e9","--accent":"#0c2340","--gradient-hero":"linear-gradient(135deg,#0ea5e9,#0c2340)"}},
+    {name:"Sunset",swatch:"linear-gradient(135deg,#ff6b35,#e84393)",vars:{"--primary":"#ff6b35","--ring":"#ff6b35","--bubble-me":"#ff6b35","--accent":"#e84393","--gradient-hero":"linear-gradient(135deg,#ff6b35,#e84393)"}},
+  ];
+
+  const PAGES = [
+    {key:"chat",label:"Chat",icon:"chat"},
+    {key:"tv",label:"TV Online",icon:"tv"},
+    {key:"historia",label:"História do São Paulo FC",icon:"book"},
+    {key:"titulos",label:"Títulos",icon:"trophy"},
+    {key:"idolos",label:"Ídolos",icon:"star"},
+    {key:"jogos",label:"Próximos Jogos",icon:"calendar"},
+    {key:"morumbi",label:"Como chegar no Morumbi",icon:"mapPin"},
+    {key:"quiz",label:"Quiz SPFC",icon:"help"},
+    {key:"loja",label:"Loja",icon:"bag"},
+    {key:"contato",label:"Contato",icon:"mail"},
+    {key:"editar1",label:"Editar",icon:"edit"},
+    {key:"editar2",label:"Editar",icon:"edit"},
+  ];
+
+const IDOLOS = [
+  {
+    nome: "Rogério Ceni",
+    img: "https://i.pinimg.com/736x/8c/47/ac/8c47ac422803a52fd6676efef5a75d51.jpg",
+    titulos: "Mundial 1993 e 2005, Libertadores 1993 e 2005, Sul-Americana 2012, Supercopa 1993, Recopa 1993 e 1994, Copa Conmebol 1994, Copa Master Conmebol 1996, Brasileiro 2006, 2007 e 2008, Rio-São Paulo 2001, Paulista 1992, 1998, 2000 e 2005."
+  },
+  {
+    nome: "Telê Santana",
+    img: "https://cdn.saopaulofc.net/2024/01/tele.jpg",
+    titulos: "Mundial Interclubes 1992 e 1993, Libertadores 1992 e 1993, Supercopa Sulamericana 1993, Recopa Sulamericana 1993 e 1994, Brasileiro 1991, Paulista 1991 e 1992."
+  },
+  {
+    nome: "Muricy Ramalho",
+    img: "https://www.portalbueno.com.br/uploads/news/22_02_2024_030945_886.jpg",
+    titulos: "Brasileiro 2006, 2007 e 2008, Copa Conmebol 1994, Copa Master Conmebol 1996."
+  },
+  {
+    nome: "Zetti",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfhbHOL2E3OeV6zC4jk3kozC4BKOpwdRlQSqyDmWwtOeRgLorKKjtMdkv0&s=10",
+    titulos: "Mundial 1992 e 1993, Libertadores 1992 e 1993, Supercopa da Libertadores 1993, Recopa Sulamericana 1993 e 1994, Copa Master Conmebol 1996, Brasileiro 1991, Paulista 1991 e 1992."
+  },
+  {
+    nome: "José Poy",
+    img: "https://cdn.saopaulofc.net/2024/01/poy-a-frente.jpg",
+    titulos: "Como jogador: Paulista 1949, 1953 e 1957. Como técnico: Paulista 1975."
+  },
+  {
+    nome: "Waldir Peres",
+    img: "https://cdn.saopaulofc.net/2024/01/waldir-peres.jpg",
+    titulos: "Paulista 1975, 1980 e 1981, Brasileiro 1977."
+  },
+  {
+    nome: "Serginho Chulapa",
+    img: "https://cdn.saopaulofc.net/2024/01/serginho.jpg",
+    titulos: "Paulista 1975, 1980 e 1981, Brasileiro 1977."
+  },
+  {
+    nome: "Zé Sérgio",
+    img: "https://cdn.saopaulofc.net/2024/01/ze-sergio.jpg",
+    titulos: "Brasileiro 1977, Paulista 1980 e 1981."
+  },
+  {
+    nome: "Müller",
+    img: "https://cdn.saopaulofc.net/2024/01/muller.jpg",
+    titulos: "Mundial 1992 e 1993, Libertadores 1992 e 1993, Supercopa da Libertadores 1993, Brasileiro 1986 e 1991, Paulista 1985, 1987, 1991 e 1992."
+  },
+  {
+    nome: "França",
+    img: "https://cdn.saopaulofc.net/2024/01/franca1.png",
+    titulos: "Torneio Rio-São Paulo 2001, Paulista 1998 e 2000."
+  },
+  {
+    nome: "Luis Fabiano",
+    img: "https://tntsports.com.br/__export/1590068918903/sites/esporteinterativo/img/2020/05/21/xluisfabiano_jpg_pagespeed_ic_fw_oyg4duh.jpg_742406227.jpg",
+    titulos: "Torneio Rio-São Paulo 2001, Copa Sul-Americana 2012."
+  },
+  {
+    nome: "Careca",
+    img: "https://cdn.saopaulofc.net/2024/01/careca.jpg",
+    titulos: "Paulista 1985 e 1987, Brasileiro 1986."
+  },
+  {
+    nome: "Leônidas da Silva",
+    img: "https://cdn.saopaulofc.net/2024/01/leonidas1.jpg",
+    titulos: "Paulista 1943, 1945, 1946, 1948 e 1949."
+  },
+  {
+    nome: "Teixeirinha",
+    img: "https://cdn.saopaulofc.net/2024/01/teixeirinha2.jpg",
+    titulos: "Paulista 1943, 1945, 1946, 1948, 1949 e 1953."
+  },
+  {
+    nome: "Canhoteiro",
+    img: "https://cdn.saopaulofc.net/2024/01/canhoteiro.jpg",
+    titulos: "Paulista 1957."
+  },
+  {
+    nome: "Luciano",
+    img: "https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/10/Luciano-Sao-Paulo-e1697936044175.jpg?w=1200&h=1200&crop=1",
+    titulos: "Paulista 2021, Copa do Brasil 2023, Supercopa do Brasil 2024"
+  },
+  {
+    nome: "Calleri",
+    img: "https://nacaotricolor.com/wp-content/uploads/2023/09/F6QZMwWX0AAFtb4.jpg",
+    titulos: "Copa do Brasil 2023, Supercopa do Brasil 2024"
+  },
+  {
+    nome: "Dagoberto",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlV385Cq8Frtsp3AzHOUzz5oL9q6dxxKlX0bh4L6v5AQ&s=10",
+    titulos: "Brasileiro 2007 e 2008."
+  },
+  {
+    nome: "Raí",
+    img: "https://cdn.saopaulofc.net/2024/01/rai.jpg",
+    titulos: "Mundial Interclubes 1992, Libertadores 1992 e 1993, Brasileiro 1991, Paulista 1989, 1991, 1992, 1998 e 2000."
+  },
+  {
+    nome: "Pedro Rocha",
+    img: "https://cdn.saopaulofc.net/2024/01/pedro-rocha3.jpg",
+    titulos: "Paulista 1971 e 1975, Brasileiro 1977."
+  },
+  {
+    nome: "Silas",
+    img: "https://cdn.saopaulofc.net/2024/01/silas.jpg",
+    titulos: "Paulista 1985 e 1987, Brasileiro 1986."
+  },
+  {
+    nome: "Pita",
+    img: "https://cdn.saopaulofc.net/2024/01/pita.jpg",
+    titulos: "Paulista 1985 e 1987, Brasileiro 1986."
+  },
+  {
+    nome: "Gérson",
+    img: "https://cdn.saopaulofc.net/2024/01/gerson.jpg",
+    titulos: "Paulista 1970 e 1971."
+  },
+  {
+    nome: "Kaká",
+    img: "https://cdn.saopaulofc.net/2024/01/kaka1.png",
+    titulos: "Torneio Rio-São Paulo 2001."
+  },
+  {
+    nome: "Toninho Cerezo",
+    img: "https://cdn.saopaulofc.net/2024/01/toninho-cerezo.jpg",
+    titulos: "Bicampeão Mundial 1992 e 1993, Libertadores 1993, Recopa Sulamericana 1993, Supercopa Sulamericana 1993, Paulista 1992."
+  },
+  {
+    nome: "Mineiro",
+    img: "https://cdn.saopaulofc.net/2024/01/mineiro3.png",
+    titulos: "Mundial 2005, Libertadores 2005, Brasileiro 2006, Paulista 2005."
+  },
+  {
+    nome: "Josué",
+    img: "https://media.bolavip.com/wp-content/uploads/sites/27/2025/06/14204351/sao-paulo-josue-ex-jogador-e1749944744624-1200x740.webp",
+    titulos: "Mundial 2005, Libertadores 2005, Brasileiro 2006."
+  },
+  {
+    nome: "Hernanes",
+    img: "https://newr7-r7-prod.web.arc-cdn.net/resizer/v2/N3HCRRIE5FOENCZJNDQ4FZYTZM.jpg?auth=014f66da19e787bf6253164bed5bfdc4a69b9242d2a94b62dc9e4ff18c0c9c4a&width=1024&height=694",
+    titulos: "Brasileiro 2007 e 2008."
+  },
+  {
+    nome: "Chicão",
+    img: "https://cdn.saopaulofc.net/2024/01/chicao.jpg",
+    titulos: "Paulista 1975, Brasileiro 1977."
+  },
+  {
+    nome: "De Sordi",
+    img: "https://cdn.saopaulofc.net/2024/01/de-sordi.jpg",
+    titulos: "Paulista 1953 e 1957."
+  },
+  {
+    nome: "Cicinho",
+    img: "https://media.antenadosnofutebol.com.br/wp-content/uploads/sites/31/2024/11/29061833/AGIF23121619594437-scaled-e1730585919147-800x800.webp",
+    titulos: "Mundial 2005, Libertadores 2005, Paulista 2005."
+  },
+  {
+    nome: "Serginho",
+    img: "https://cdn.saopaulofc.net/2024/01/serginho2.png",
+    titulos: "Paulista 1998."
+  },
+  {
+    nome: "Cafu",
+    img: "https://cdn.saopaulofc.net/2024/01/cafu-terceiroabaixado.jpg",
+    titulos: "Mundial Interclubes 1992 e 1993, Libertadores 1992 e 1993, Supercopa 1993, Recopa 1993 e 1994, Brasileiro 1991, Paulista 1989, 1991 e 1992."
+  },
+  {
+    nome: "Lugano",
+    img: "https://terceirotempo.uol.com.br/imagens/43/79/w652_h408_pdt_ft1_124379.webp",
+    titulos: "Paulista 2005, Libertadores 2005, Mundial 2005, Brasileiro 2006."
+  },
+  {
+    nome: "Ronaldão",
+    img: "https://cdn.saopaulofc.net/2024/01/ronaldaoh.jpg",
+    titulos: "Paulista 1987, 1989, 1991 e 1992, Brasileiro 1986 e 1991, Bicampeão Libertadores 1992 e 1993, Bicampeão Mundial Interclubes 1992 e 1993, Supercopa 1993, Recopa Sulamericana 1993."
+  },
+  {
+    nome: "Miranda",
+    img: "https://tntsports.cl/__export/1668114653216/sites/esporteinterativo/img/2022/11/10/gazeta-press-foto-1769552.jpg_423682103.jpg",
+    titulos: "Brasileiro 2006, 2007 e 2008, Paulista 2021."
+  },
+  {
+    nome: "Darío Pereyra",
+    img: "https://cdn.saopaulofc.net/2024/01/dario-pereyra.jpg",
+    titulos: "Paulista 1980, 1981, 1985 e 1987, Brasileiro 1977 e 1986."
+  },
+  {
+    nome: "Oscar",
+    img: "https://cdn.saopaulofc.net/2024/01/oscar.jpg",
+    titulos: "Brasileiro 1986, Paulista 1980, 1981, 1985 e 1987."
+  }
+];
+
+  const QUIZ = [
+    {q:"Em que ano o São Paulo FC foi fundado?",o:["1925","1930","1935","1942"],a:1},
+    {q:"Quantos títulos mundiais o São Paulo possui?",o:["1","2","3","4"],a:2},
+    {q:"Qual o estádio do São Paulo FC?",o:["Pacaembu","Morumbi","Allianz","Maracanã"],a:1},
+    {q:"Quem é o maior ídolo goleiro do clube?",o:["Zetti","Rogério Ceni","Gilmar","Waldir Peres"],a:1},
+    {q:"Em que ano foi a primeira Libertadores?",o:["1974","1986","1992","2005"],a:2},
+    {q:"Quem treinou o tri Brasileiro 2006/07/08?",o:["Telê Santana","Muricy Ramalho","Leão","Autuori"],a:1},
+    {q:"Quantos Brasileiros o SPFC tem?",o:["4","5","6","7"],a:2},
+    {q:"Em que ano ganhou a Sul-Americana?",o:["2010","2011","2012","2013"],a:2},
+    {q:"Quem fez o gol do título mundial 2005?",o:["Amoroso","Mineiro","Aloísio","Lugano"],a:1},
+    {q:"Quem foi o capitão do Mundial 2005?",o:["Lugano","Rogério Ceni","Josué","Fabão"],a:1},
+    {q:"Em que ano ganhou a 1ª Copa do Brasil?",o:["2008","2015","2020","2023"],a:3},
+    {q:"Quem é o maior artilheiro da história?",o:["Serginho Chulapa","Müller","Luís Fabiano","França"],a:0},
+    {q:"Cores oficiais do clube?",o:["Vermelho, branco e preto","Vermelho e branco","Branco e preto","Tricolor verde"],a:0},
+    {q:"Em que ano inaugurou o Morumbi?",o:["1955","1960","1965","1970"],a:1},
+    {q:"Quem ganhou a Bola de Ouro pelo SPFC em 92?",o:["Raí","Cafu","Müller","Palhinha"],a:0},
+  ];
+
+  const BANNER_IMG = "https://www.travel2concert.com.br/wp-content/uploads/2023/12/estadio-do-morumbi-sao-paulo-show-5.jpg";
+  const SPFC_AVATAR = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRimMYoAzSB08HB74igS4ls6fMJbSmZC0G9yxRleAvFh5ll6qx4bdSvT_LM&s=10";
+
+  /* ===================== FILTRO DE PALAVRAS BLOQUEADAS ===================== */
+  // Adicione aqui as palavras/nomes que você quer bloquear no chat.
+  // Não precisa se preocupar com acento ou maiúscula/minúscula, o sistema
+  // já ignora isso automaticamente (ex: "Palmeiras", "palmeiras" e "pálmeiras"
+  // caem na mesma regra).
+  const BLOCKED_WORDS = [
+    "corinthians",
+    "timao",
+    "verdao",
+    "avante palestra",
+    "fregues do corinthians",
+    "fregues do timao",
+    "bambi",
+    "trikas",
+    "tricas",
+    "bixas",
+    "viado",
+    "viados",
+  ];
+
+  function normalizeText(str){
+    return String(str)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .toLowerCase();
+  }
+
+  function findBlockedWord(text){
+    const norm = normalizeText(text);
+    return BLOCKED_WORDS.find(w => norm.includes(normalizeText(w))) || null;
+  }
+
+  /* ===================== STATE ===================== */
+  const state = {
+    nick:"", avatar:avatarUrl(AVATAR_SEEDS[0]),
+    entered:false, dark:false,
+    showAvatarPicker:false, showThemes:false, themeIdx:0,
+    adIndex:0, shareMsg:"", showShare:false,
+    page:"chat", menuOpen:false,
+    messages:[], input:"",
+    editingId:null, replyId:null,
+    openMenu:null, openReactions:null,
+    quiz:{idx:0,score:0,sel:null,done:false},
+    social: loadSocial(),
+  };
+
+  const SOCIAL_CONFIG = [
+    {key:"instagram", label:"Instagram", icon:"instagram", placeholder:"https://instagram.com/seuusuario"},
+    {key:"tiktok", label:"TikTok", icon:"tiktok", placeholder:"https://tiktok.com/@seuusuario"},
+    {key:"youtube", label:"YouTube", icon:"youtube", placeholder:"https://youtube.com/@seucanal"},
+    {key:"facebook", label:"Facebook", icon:"facebook", placeholder:"https://facebook.com/seuusuario"},
+    {key:"email", label:"E-mail", icon:"mail", placeholder:"contato@seudominio.com"},
+  ];
+
+  // ===================== SEUS LINKS DE CONTATO =====================
+  // Edite os valores abaixo com os SEUS links/usuários de rede social.
+  // Deixe em branco ("") a rede que você não quiser mostrar.
+  function loadSocial(){
+    return {
+      instagram: "https://instagram.com/tuesfortetuesgrandeof",  // ex: "https://instagram.com/seuusuario"
+      tiktok: "https://tiktok.com/@tuesfortetuesgrandeof",     // ex: "https://tiktok.com/@seuusuario"
+      youtube: "https://youtube.com/@tuesfortetuesgrande",    // ex: "https://youtube.com/@seucanal"
+      facebook: "https://facebook.com/tuesfortetuesgrandeoficial",   // ex: "https://facebook.com/seuusuario"
+      email: "tuesfortetuesgrandeof@gmail.com",      // ex: "contato@seudominio.com"
+    };
+  }
+  function saveSocial(){ /* links agora são fixos no código, nada a salvar */ }
+  function socialHref(key, val){
+    if(!val) return "#";
+    if(key==="email") return val.startsWith("mailto:") ? val : `mailto:${val}`;
+    return /^https?:\/\//i.test(val) ? val : `https://${val}`;
+  }
+
+  /* ===================== UTIL ===================== */
+  const $ = sel => document.querySelector(sel);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&","<":"<",">":">",'"':"&quot;","'":"&#039;"}[c]));
+  const fmtTime = ts => ts ? new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) : "";
+  const uid = () => String(Math.random()).toString(36).substr(2,9);
+
+  /* ===================== ÍCONES PROFISSIONAIS (SVG) ===================== */
+  const ICONS = {
+    chat: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`,
+    tv: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>`,
+    book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 4h3a2 2 0 0 1 0 4h-1"/><path d="M7 4H4a2 2 0 0 0 0 4h1"/></svg>`,
+    star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    calendar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+    mapPin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+    help: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12" y2="17.01"/></svg>`,
+    bag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+    mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>`,
+    edit: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+    sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>`,
+    moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51 8.59 10.49"/></svg>`,
+    close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>`,
+    link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+    copy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+    moreShare: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`,
+    check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+    instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
+    tiktok: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2c.35 2.24 1.86 3.94 4.15 4.24v3.14c-1.55.05-2.98-.44-4.15-1.32v6.7A5.95 5.95 0 1 1 10.7 8.9c.28 0 .56.02.84.06v3.13a2.83 2.83 0 1 0 2 2.7V2z"/></svg>`,
+    youtube: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 6.5a2.8 2.8 0 0 0-2-2C18.7 4 12 4 12 4s-6.7 0-8.5.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 1 12a29 29 0 0 0 .5 5.5 2.8 2.8 0 0 0 2 2C5.3 20 12 20 12 20s6.7 0 8.5-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 23 12a29 29 0 0 0-.5-5.5zM9.8 15.5v-7l6 3.5z"/></svg>`,
+    facebook: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.5-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg>`,
+    whatsapp: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.13c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.8-.11a16.5 16.5 0 0 1-1.63-.6c-2.87-1.24-4.74-4.13-4.88-4.32-.14-.19-1.17-1.56-1.17-2.98s.73-2.12 1-2.41c.26-.29.56-.36.75-.36l.53.01c.17 0 .4-.06.62.48.24.58.8 2 .87 2.15.07.15.12.32.02.51-.1.19-.15.32-.29.49-.15.17-.31.39-.44.52-.15.15-.3.31-.13.6.17.29.75 1.25 1.61 2.02 1.11.99 2.04 1.3 2.33 1.45.29.15.46.13.63-.08.17-.2.72-.84.91-1.13.19-.29.38-.24.63-.14.26.1 1.65.78 1.93.92.29.15.48.22.55.34.07.13.07.75-.17 1.43z"/></svg>`,
+    x: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.75h3.02l-6.6 7.54 7.77 10.96h-6.08l-4.76-6.4-5.45 6.4H2.9l7.06-8.07L2.5 2.75h6.24l4.3 5.85zM17.15 19.5h1.68L7.94 4.5H6.14z"/></svg>`,
+    telegram: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.94 3.6 2.62 11.1c-1.28.5-1.27 1.2-.23 1.52l4.96 1.55 1.92 5.85c.23.65.4.9.82.9.35 0 .5-.16.7-.35l1.68-1.63 3.5 2.58c.64.35 1.11.17 1.28-.6l2.31-10.9c.25-1.02-.39-1.48-1.06-1.42zM8.2 13.9l8.5-5.36c.4-.25.77-.11.47.16l-6.9 6.24-.27 3.02z"/></svg>`,
+  };
+  const ic = (name, cls) => (ICONS[name]||"").replace("<svg ", `<svg class="${cls||'w-5 h-5'} shrink-0" `);
+
+  function applyTheme(){
+    const t = THEMES[state.themeIdx];
+    Object.entries(t.vars).forEach(([k,v]) => document.documentElement.style.setProperty(k,v));
+  }
+  function applyDark(){ document.documentElement.classList.toggle("dark", state.dark); }
+
+  function setState(patch){ Object.assign(state, patch); render(); }
+
+  // ESCUTANDO MENSAGENS EM TEMPO REAL DO FIRESTORE
+  const qMessages = query(collection(db, "mensagens"), orderBy("ts", "asc"));
+  onSnapshot(qMessages, (snapshot) => {
+    const msgs = [];
+    snapshot.forEach((doc) => {
+      msgs.push({ id: doc.id, ...doc.data() });
+    });
+    state.messages = msgs;
+    render();
+  });
+
+  /* ===================== RENDER ===================== */
+  function render(){
+    applyDark(); applyTheme();
+    $("#app").innerHTML = state.entered ? appView() : loginView();
+    bind();
+    if(state.entered && state.page==="chat"){
+      const sc = $("#scrollArea"); if(sc) sc.scrollTop = sc.scrollHeight;
+    }
+    updateAdOnly();
+  }
+
+function updateAdOnly() {
+  const adContainer = document.getElementById("ad-container");
+  if (!adContainer) return;
+  const ad = ADS[state.adIndex];
+  
+  adContainer.innerHTML = `
+    <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="block">
+      <div class="relative rounded-lg text-white shadow-sm overflow-hidden flex items-center p-2 gap-3" style="background:${ad.gradient}">
+        
+        <div class="text-2xl shrink-0">${ad.icon}</div>
+        
+        <div class="flex-1 min-w-0">
+          <p class="text-[10px] uppercase tracking-widest font-bold opacity-75">${ad.tag}</p>
+          <p class="text-sm font-bold truncate">${esc(ad.title)}</p>
+        </div>
+        
+        <button class="text-[10px] font-bold bg-white/20 backdrop-blur-sm border border-white/30 rounded px-3 py-1 shrink-0 hover:bg-white/30 transition">
+          ${esc(ad.cta)}
+        </button>
+        
+      </div>
+      <div class="flex justify-center gap-1 mt-1">
+        ${ADS.map((_,i)=>`<span class="h-1 rounded-full transition-all ${i===state.adIndex?'w-4 bg-gray-400':'w-1 bg-gray-300'}"></span>`).join("")}
+      </div>
+    </a>
+  `;
+}
+
+  function loginView(){
+    return `
+    <main class="min-h-screen flex items-center justify-center px-4 py-10 gradient-hero">
+      <div class="w-full max-w-md rounded-3xl bg-card p-7 shadow-2xl">
+        <div class="flex justify-end -mt-2 mb-2">
+          <button data-act="toggleDark" class="h-9 w-9 rounded-full bg-secondary hover:opacity-80 transition flex items-center justify-center">${state.dark?ic("sun","w-4 h-4"):ic("moon","w-4 h-4")}</button>
+        </div>
+        <div class="text-center mb-6">
+<div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-primary-foreground mb-3 gradient-hero overflow-hidden">
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRimMYoAzSB08HB74igS4ls6fMJbSmZC0G9yxRleAvFh5ll6qx4bdSvT_LM&s=10" alt="Ícone do Chat" class="h-full w-full object-cover" />
+</div>
+          <h1 class="text-3xl font-bold tracking-tight text-foreground">Chat Tú és Forte, Tú és Grande</h1>
+          <p class="text-sm text-muted-foreground mt-1">Crie seu nick e escolha um avatar</p>
+        </div>
+        <label class="text-sm font-medium text-foreground">Seu nick</label>
+        <input id="nickInput" value="${esc(state.nick)}" maxlength="20" placeholder="Ex: Lucas"
+          class="mt-1 w-full rounded-xl border border-border bg-background px-4 py-3 outline-none focus:ring-2 ring-ring text-foreground" />
+        <p class="text-sm font-medium mt-5 mb-2 text-foreground">Escolha seu avatar</p>
+        <div class="grid grid-cols-4 gap-3">
+          ${AVATAR_SEEDS.map(s=>{
+            const u=avatarUrl(s), sel=state.avatar===u;
+            return `<button data-act="pickAvatar" data-seed="${s}" class="relative aspect-square rounded-2xl overflow-hidden border-2 transition-all ${sel?'border-primary scale-105 shadow-lg':'border-transparent hover:border-border'}">
+              <img src="${u}" alt="${s}" class="w-full h-full object-cover bg-secondary"/>
+              ${sel?'<span class="absolute bottom-1 right-1 h-5 w-5 rounded-full text-primary-foreground text-xs flex items-center justify-center" style="background:var(--primary)">✓</span>':''}
+            </button>`;
+          }).join("")}
+        </div>
+        <button id="enterBtn" ${state.nick.trim()?'':'disabled'}
+          class="mt-6 w-full rounded-xl py-3 font-semibold text-primary-foreground gradient-hero transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95 active:scale-[0.99]">
+          Entrar no app
+        </button>
+      </div>
+    </main>`;
+  }
+
+  function appView(){
+    const pageMeta = PAGES.find(p=>p.key===state.page);
+    return `
+    <main class="min-h-screen flex items-center justify-center p-0 sm:p-4 gradient-hero">
+      <div class="w-full max-w-2xl h-screen sm:h-[90vh] sm:rounded-3xl overflow-hidden bg-card shadow-2xl flex flex-col relative">
+        <header class="relative text-white">
+          <div class="relative h-36 sm:h-40 bg-cover bg-center" style="background-image:url(${BANNER_IMG})">
+            <div class="absolute inset-0" style="background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.55) 60%,rgba(0,0,0,.85))"></div>
+            <div class="relative z-10 flex items-center gap-1.5 px-3 pt-3">
+              <button data-act="openMenu" class="h-10 w-10 rounded-full bg-white/15 backdrop-blur hover:bg-white/25 transition flex flex-col items-center justify-center gap-[4px]" title="Menu">
+                <span class="block h-0.5 w-5 bg-white rounded"></span>
+                <span class="block h-0.5 w-5 bg-white rounded"></span>
+                <span class="block h-0.5 w-5 bg-white rounded"></span>
+              </button>
+              <div class="flex-1"></div>
+              <button data-act="openAvatarPicker" class="flex items-center gap-2 text-xs bg-white/15 backdrop-blur hover:bg-white/25 transition rounded-full pl-1 pr-3 py-1" title="Trocar avatar">
+                <span class="relative">
+                  <img src="${state.avatar}" class="h-7 w-7 rounded-full ring-2 ring-white/50"/>
+                  <span class="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-white text-black text-[10px] flex items-center justify-center shadow">✎</span>
+                </span>
+                <span class="font-medium max-w-[70px] truncate">${esc(state.nick)}</span>
+              </button>
+              <button data-act="openThemes" class="h-10 w-10 rounded-full bg-white/15 backdrop-blur hover:bg-white/25 transition flex items-center justify-center" title="Temas">🎨</button>
+              <button data-act="toggleDark" class="h-10 w-10 rounded-full bg-white/15 backdrop-blur hover:bg-white/25 transition flex items-center justify-center" title="Tema">${state.dark?ic("sun","w-5 h-5"):ic("moon","w-5 h-5")}</button>
+              <button data-act="openShare" class="h-10 w-10 rounded-full bg-white/15 backdrop-blur hover:bg-white/25 transition flex items-center justify-center" title="Compartilhar">${ic("share","w-5 h-5")}</button>
+              <button data-act="logout" class="h-10 w-10 rounded-full bg-white/15 backdrop-blur hover:bg-white/25 transition flex items-center justify-center" title="Sair">⎋</button>
+            </div>
+            <div class="absolute inset-x-0 bottom-3 z-10 flex items-end gap-3 px-4">
+              <img src="${SPFC_AVATAR}" alt="SPFC" class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover ring-4 ring-white shadow-2xl shrink-0" style="background:#fff"/>
+              <div class="min-w-0 pb-1">
+                <p class="text-[10px] uppercase tracking-[0.18em] opacity-90 font-semibold">São Paulo Futebol Clube</p>
+                <h1 class="font-extrabold text-xl sm:text-2xl leading-tight drop-shadow-lg" style="font-family:Georgia,'Times New Roman',serif;letter-spacing:-.01em">Tú és forte, tú és grande</h1>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 px-4 py-2 text-xs font-medium text-white gradient-hero">
+            <span class="text-base">${ic(pageMeta.icon,"w-4 h-4")}</span>
+            <span class="flex-1 truncate">${pageMeta.label}</span>
+            <span class="opacity-80">${state.page==="chat"?"● online":"Tricolor"}</span>
+          </div>
+        </header>
+
+        ${state.shareMsg?`<div class="absolute top-4 right-3 z-30 bg-popover text-popover-foreground border border-border rounded-lg px-3 py-1.5 text-xs shadow-lg">${esc(state.shareMsg)}</div>`:""}
+
+        ${state.showThemes?themesModal():""}
+        ${state.showAvatarPicker?avatarPickerModal():""}
+        ${state.showShare?shareModal():""}
+
+        ${state.page==="chat" ? chatView() : `<div class="flex-1 overflow-hidden">${pageContent(state.page)}</div>`}
+
+        <div class="border-t border-border bg-card">
+          <div class="px-3 py-2" id="ad-container"></div>
+        </div>
+      </div>
+
+      ${state.menuOpen?drawer():""}
+    </main>`;
+  }
+
+  function themesModal(){
+    return `<div data-act="closeThemes" class="absolute inset-0 z-40 bg-black/60 flex items-center justify-center p-4 anim-fade">
+      <div data-stop class="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg text-foreground">Escolha um tema</h3>
+          <button data-act="closeThemes" class="text-muted-foreground hover:text-foreground">✕</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          ${THEMES.map((t,i)=>{
+            const sel=state.themeIdx===i;
+            return `<button data-act="pickTheme" data-i="${i}" class="rounded-2xl overflow-hidden border-2 transition text-left ${sel?'border-primary scale-[1.02]':'border-border'}">
+              <div class="h-16 w-full" style="background:${t.swatch}"></div>
+              <div class="px-3 py-2 flex items-center justify-between bg-card">
+                <span class="text-sm font-semibold truncate text-foreground">${t.name}</span>
+                ${sel?'<span class="text-primary">●</span>':''}
+              </div>
+            </button>`;
+          }).join("")}
+        </div>
+        <div class="mt-4 flex items-center gap-2 rounded-xl bg-secondary p-3 text-xs">
+          <span class="text-base">${state.dark?ic("sun","w-4 h-4"):ic("moon","w-4 h-4")}</span>
+          <span class="flex-1 text-foreground">Modo ${state.dark?"escuro":"claro"}</span>
+          <button data-act="toggleDark" class="px-3 py-1 rounded-full text-primary-foreground text-xs font-semibold" style="background:var(--primary)">Alternar</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function avatarPickerModal(){
+    return `<div data-act="closeAvatarPicker" class="absolute inset-0 z-40 bg-black/50 flex items-center justify-center p-4 anim-fade">
+      <div data-stop class="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg text-foreground">Trocar avatar</h3>
+          <button data-act="closeAvatarPicker" class="text-muted-foreground hover:text-foreground">✕</button>
+        </div>
+        <div class="grid grid-cols-4 gap-3">
+          ${AVATAR_SEEDS.map(s=>{
+            const u=avatarUrl(s), sel=state.avatar===u;
+            return `<button data-act="setAvatar" data-seed="${s}" class="relative aspect-square rounded-2xl overflow-hidden border-2 transition-all ${sel?'border-primary scale-105 shadow-lg':'border-transparent'}">
+              <img src="${u}" class="w-full h-full object-cover bg-secondary"/>
+              ${sel?'<span class="absolute bottom-1 right-1 h-5 w-5 rounded-full text-primary-foreground text-xs flex items-center justify-center" style="background:var(--primary)">✓</span>':''}
+            </button>`;
+          }).join("")}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function shareModal(){
+    const url = location.href;
+    const text = "Entre no Chat Tú és Forte, Tú és Grande e vem torcer com a gente!";
+    const enc = encodeURIComponent;
+    const options = [
+      {key:"whatsapp", label:"WhatsApp", icon:"whatsapp", href:`https://wa.me/?text=${enc(text+" "+url)}`, bg:"#25D366"},
+      {key:"facebook", label:"Facebook", icon:"facebook", href:`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, bg:"#1877F2"},
+      {key:"x", label:"X / Twitter", icon:"x", href:`https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`, bg:"#000000"},
+      {key:"telegram", label:"Telegram", icon:"telegram", href:`https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`, bg:"#26A5E4"},
+      {key:"email", label:"E-mail", icon:"mail", href:`mailto:?subject=${enc("Chat Tú és Forte, Tú és Grande")}&body=${enc(text+" "+url)}`, bg:"#6b7280"},
+    ];
+    return `<div data-act="closeShare" class="absolute inset-0 z-40 bg-black/60 flex items-center justify-center p-4 anim-fade">
+      <div data-stop class="w-full max-w-sm rounded-3xl bg-card p-6 shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-bold text-lg text-foreground flex items-center gap-2">${ic("share","w-5 h-5")} Compartilhar</h3>
+          <button data-act="closeShare" class="text-muted-foreground hover:text-foreground">${ic("close","w-5 h-5")}</button>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          ${options.map(o=>`<a href="${o.href}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1.5 text-center group">
+            <span class="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-sm group-hover:opacity-85 transition" style="background:${o.bg}">${ic(o.icon,"w-6 h-6")}</span>
+            <span class="text-[11px] font-medium text-foreground">${o.label}</span>
+          </a>`).join("")}
+        </div>
+        <div class="mt-4 flex items-center gap-2 rounded-xl bg-secondary p-2">
+          <span class="flex-1 truncate text-xs text-muted-foreground px-2">${esc(url)}</span>
+          <button data-act="shareCopy" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-primary-foreground gradient-hero shrink-0">${ic("copy","w-4 h-4")} Copiar link</button>
+        </div>
+        ${typeof navigator!=="undefined" && navigator.share ? `<button data-act="shareNative" class="mt-3 w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold border border-border text-foreground hover:bg-secondary transition">${ic("moreShare","w-4 h-4")} Mais opções do dispositivo</button>` : ""}
+      </div>
+    </div>`;
+  }
+
+  function drawer(){
+    return `<div class="fixed inset-0 z-50 flex" data-act="closeMenu">
+      <div class="absolute inset-0 bg-black/60 anim-fade"></div>
+      <aside data-stop class="relative w-72 max-w-[85%] h-full bg-card shadow-2xl flex flex-col anim-slide-left">
+        <div class="p-4 text-primary-foreground flex items-center gap-3 gradient-hero">
+          <img src="${state.avatar}" class="h-12 w-12 rounded-full ring-2 ring-white/40"/>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold truncate">${esc(state.nick)}</p>
+            <p class="text-xs opacity-80">Tricolor de coração</p>
+          </div>
+          <button data-act="closeMenu" class="h-8 w-8 rounded-full bg-white/15 hover:bg-white/25 transition">✕</button>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-2">
+          ${PAGES.map(p=>{
+            const a=state.page===p.key;
+            return `<button data-act="setPage" data-key="${p.key}" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-left transition ${a?'bg-secondary font-semibold text-primary':'hover:bg-secondary'}">
+              <span class="h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${a?'text-white scale-105':'bg-secondary text-foreground'}" style="${a?'background:var(--gradient-hero);box-shadow:var(--shadow-bubble)':''}">${ic(p.icon,"w-5 h-5")}</span>
+              <span class="flex-1 text-[15px] text-foreground">${p.label}</span>
+              ${a?'<span class="text-primary text-lg">●</span>':''}
+            </button>`;
+          }).join("")}
+        </nav>
+        <div class="p-3 border-t border-border text-[11px] text-muted-foreground text-center">Chat · Tricolor</div>
+      </aside>
+    </div>`;
+  }
+
+  /* ===================== CHAT ===================== */
+  function chatView(){
+    const replyMsg = state.replyId ? state.messages.find(m=>m.id===state.replyId) : null;
+    return `
+    <div id="scrollArea" data-act="closeOverlays" class="flex-1 overflow-y-auto px-3 sm:px-5 py-4 space-y-2 chat-bg-area scrollbar-thin">
+      ${state.messages.length===0?'<div class="text-center text-muted-foreground text-sm mt-10">Diga olá para começar a conversa 👋</div>':""}
+      ${state.messages.map(m=>messageBubble(m)).join("")}
+    </div>
+    ${(replyMsg||state.editingId)?`
+      <div class="px-4 py-2 bg-secondary border-t border-border flex items-center gap-3 text-xs">
+        <div class="flex-1 border-l-2 border-primary pl-2">
+          ${state.editingId
+            ? `<div class="font-semibold text-primary">Editando mensagem</div><div class="opacity-70 truncate text-foreground">${esc(state.input)}</div>`
+            : `<div class="font-semibold text-primary">Respondendo ${esc(replyMsg.nick)}</div><div class="opacity-70 truncate text-foreground">${esc(replyMsg.text)}</div>`}
+        </div>
+        <button data-act="cancelReplyEdit" class="text-muted-foreground hover:text-foreground text-base">✕</button>
+      </div>`:""}
+    <div class="p-3 bg-card border-t border-border flex items-end gap-2">
+      <textarea id="msgInput" rows="1" placeholder="Digite uma mensagem"
+        class="flex-1 resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none focus:ring-2 ring-ring max-h-32 text-foreground">${esc(state.input)}</textarea>
+      <button data-act="send" class="h-11 w-11 rounded-full text-primary-foreground text-lg flex items-center justify-center shadow-lg hover:opacity-95 active:scale-95 transition gradient-hero">➤</button>
+    </div>`;
+  }
+
+  function messageBubble(m){
+    const mine = m.nick === state.nick && m.avatar === state.avatar;
+    const parent = m.replyTo ? state.messages.find(x=>x.id===m.replyTo) : null;
+    
+    // CORREÇÃO: Garante o fallback de m.reactions para evitar que m.reactions seja undefined
+    const reactionEntries = Object.entries(m.reactions || {}).filter(([k, n]) => typeof n === 'number' && n > 0);
+    const totalReactions = reactionEntries.reduce((acc, [, n]) => acc + n, 0);
+    
+    return `<div class="flex gap-2 ${mine?'justify-end':'justify-start'} mb-3">
+      ${!mine?`<img src="${m.avatar}" class="h-8 w-8 rounded-full self-end mb-1 object-cover"/>`:""}
+      <div class="relative max-w-[78%] flex flex-col ${mine?'items-end':'items-start'}">
+        <div data-act="toggleMenu" data-id="${m.id}" class="relative rounded-2xl px-3 py-2 text-xs cursor-pointer select-none shadow-bubble"
+             style="background:${mine?'var(--bubble-me)':'var(--bubble-other)'};color:${mine?'var(--bubble-me-fg)':'var(--bubble-other-fg)'};border-top-${mine?'right':'left'}-radius:4px">
+          ${parent?`<div class="mb-1 rounded-lg px-2 py-1 text-[11px] border-l-2" style="border-color:${mine?'rgba(255,255,255,.7)':'var(--primary)'};background:${mine?'rgba(255,255,255,.15)':'var(--secondary)'};color:${mine?'rgba(255,255,255,.95)':'var(--bubble-other-fg)'}"><div class="font-semibold">${esc(parent.nick)}</div><div class="opacity-80 truncate">${esc(parent.text)}</div></div>`:""}
+          ${!mine?`<div class="text-[10px] font-bold mb-0.5 text-primary">${esc(m.nick)}</div>`:""}
+          <div class="whitespace-pre-wrap break-words leading-relaxed">${esc(m.text)}</div>
+          <div class="text-[9px] mt-1 text-right ${mine?'opacity-75':'opacity-50'}">${m.edited?'<span class="mr-1 italic">editada</span>':''}${fmtTime(m.ts)}</div>
+
+          ${state.openMenu===m.id?`
+            <div data-stop class="absolute z-20 top-full mt-1 ${mine?'right-0':'left-0'} bg-popover text-popover-foreground rounded-xl shadow-xl border border-border py-1 text-[11px] min-w-[130px]">
+              <button data-act="reply" data-id="${m.id}" class="w-full px-3 py-1.5 text-left hover:bg-secondary flex items-center gap-2 text-foreground">↩️ Responder</button>
+              <button data-act="openReact" data-id="${m.id}" class="w-full px-3 py-1.5 text-left hover:bg-secondary flex items-center gap-2 text-foreground">😊 Reagir</button>
+              ${mine?`
+                <button data-act="edit" data-id="${m.id}" class="w-full px-3 py-1.5 text-left hover:bg-secondary flex items-center gap-2 text-foreground">✏️ Editar</button>
+                <button data-act="del" data-id="${m.id}" class="w-full px-3 py-1.5 text-left hover:bg-secondary text-destructive flex items-center gap-2">🗑️ Excluir</button>`:""}
+            </div>`:""}
+
+          ${state.openReactions===m.id?`
+            <div data-stop class="absolute z-30 -top-14 ${mine?'right-0':'left-0'} bg-popover rounded-full shadow-2xl border border-border px-3 py-1.5 flex gap-2.5 anim-fade items-center justify-between backdrop-blur-md bg-opacity-95">
+              ${REACTIONS.map(r=>`
+                <button data-act="react" data-id="${m.id}" data-k="${r.k}" title="${r.label}" class="transform hover:scale-125 transition-all duration-150 active:scale-95 w-7 h-7 shrink-0">
+                  <img src="${r.img}" alt="${r.label}" class="w-full h-full object-contain" />
+                </button>
+              `).join("")}
+            </div>`:""}
+        </div>
+
+        ${totalReactions > 0 ? `
+          <div class="absolute -bottom-3 ${mine?'left-2':'right-2'} z-10 flex items-center bg-card border border-border rounded-full px-1.5 py-0.5 shadow-sm space-x-0.5 min-h-[20px]">
+            <div class="flex -space-x-1 items-center">
+              ${reactionEntries.map(([k])=>{
+                const r=REACTIONS.find(x=>x.k===k);
+                return r ? `<img src="${r.img}" class="w-3.5 h-3.5 object-contain rounded-full bg-card ring-1 ring-background" />` : '';
+              }).join("")}
+            </div>
+            <span class="text-[9px] font-bold text-muted-foreground px-0.5">${totalReactions}</span>
+          </div>`
+        :""}
+      </div>
+      ${mine?`<img src="${m.avatar}" class="h-8 w-8 rounded-full self-end mb-1 object-cover"/>`:""}
+    </div>`;
+  }
+
+  /* ===================== PAGES ===================== */
+  function section(title, body){
+    return `<div class="p-5 sm:p-6 overflow-y-auto h-full scrollbar-thin bg-card">
+      <h2 class="text-2xl font-bold mb-4 text-primary">${title}</h2>
+      <div class="space-y-4 text-sm leading-relaxed text-foreground">${body}</div>
+    </div>`;
+  }
+  function pageContent(key){
+    switch(key){
+      case "tv": return section(`${ic("tv","w-5 h-5 inline -mt-1")} TV Online`, `
+          <center><span class="text-sm font-semibold text-green-500">● ESPN AO VIVO</span></center>
+        <div class="relative w-full overflow-hidden rounded-2xl shadow-lg" style="padding-bottom:56.25%">
+          <iframe src="https://embedcanaisdetv.xyz/e/index.php?canal=espn" allow="autoplay;encrypted-media" allowfullscreen class="absolute inset-0 w-full h-full border-0"></iframe>
+        </div>
+          <center><span class="text-sm font-semibold text-green-500">● SporTV</span></center>
+        <div class="relative w-full overflow-hidden rounded-2xl shadow-lg" style="padding-bottom:56.25%">
+          <iframe src="https://embedcanaisdetv.xyz/e/index.php?canal=sportv" allow="autoplay;encrypted-media" allowfullscreen class="absolute inset-0 w-full h-full border-0"></iframe>
+        </div>
+        <div class="flex items-center justify-between mt-3">
+          <a href="#" target="_blank" class="text-xs bg-primary text-primary-foreground rounded-full px-4 py-1.5 hover:opacity-80 transition">Visite o site</a>
+        </div>
+        <p class="text-xs text-muted-foreground mt-2">Quando aparecer o anúncio em pop-up na tela, clique em fechar.</p>
+      `);
+case "historia": 
+  return section(`${ic("book","w-5 h-5 inline -mt-1")} História do São Paulo FC`, `
+    <p>A mais jovem agremiação dentre os grandes do futebol brasileiro, o <strong>São Paulo Futebol Clube</strong> é o clube mais vencedor do Brasil!</p>
+    
+    <p>Fundado em 25 de janeiro de 1930 e marcado por histórias de superação, como a refundação do clube em 1935 ou os tempos difíceis da construção do <strong>MorumBIS</strong>, o Tricolor Mais Querido do planeta é o único clube brasileiro a ter conquistado a América e o Mundo por três vezes. É ainda o único Tricampeão consecutivo do Campeonato Brasileiro e o primeiro a conquistá-lo por seis vezes: Tri-Hexacampeão Brasileiro.</p>
+    
+    <p>Dentro das quatro linhas, foi vestindo o manto tricolor que o goleiro Caxambu inventou a ponte, que Roberto Dias tornou-se o maior marcador de Pelé, que Raí e Telê comemoraram a vitória sobre o Barcelona, que Müller marcou o gol que fez o italiano Costacurta perder o rumo de Milão, e que Rogério Ceni tornou-se o <strong>Maior Goleiro Artilheiro do Mundo</strong>.</p>
+    
+    <p>A grandeza do São Paulo transcende o futebol: foi defendendo suas cores que Adhemar Ferreira da Silva chegou ao ouro olímpico e que Éder Jofre, o Galo de Ouro, surgiu para o boxe mundial. Com um patrimônio invejável, incluindo o MorumBIS e centros de excelência em treinamento, o Tricolor faz jus ao seu hino: <em>dentre os grandes, és o primeiro!</em></p>
+  `);
+      case "titulos":{
+        const grupos=[
+          {c:"🌍 Mundiais",i:["Mundial de Clubes FIFA — 1992, 1993, 2005"]},
+          {c:"🌎 Continentais",i:["Copa Libertadores — 1992, 1993, 2005","Copa Sul-Americana — 2012","Copa CONMEBOL — 1994","Recopa Sul-Americana — 1993, 1994","Supercopa Sul-Americana — 1993","Copa Master da Supercopa — 1996"]},
+          {c:"🇧🇷 Nacionais",i:["Campeonato Brasileiro — 1977, 1986, 1991, 2006, 2007, 2008","Copa do Brasil — 2023","Supercopa do Brasil — 2024"]},
+          {c:"🏟️ Estaduais",i:["Campeonato Paulista — 22 títulos (1931, 1943, 1945, 1946, 1948, 1949, 1953, 1957, 1970, 1971, 1975, 1980, 1981, 1985, 1987, 1989, 1991, 1992, 1998, 2000, 2005, 2021)"]},
+        ];
+        return section(`${ic("trophy","w-5 h-5 inline -mt-1")} Títulos`, grupos.map(g=>`
+          <div class="rounded-xl border border-border bg-card p-4">
+            <h3 class="font-semibold mb-2 text-foreground">${g.c}</h3>
+            <ul class="list-disc pl-5 space-y-1 text-foreground">${g.i.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+          </div>`).join(""));
+      }
+      case "idolos":
+        return section(`${ic("star","w-5 h-5 inline -mt-1")} Ídolos`,`<div class="grid sm:grid-cols-2 gap-4">${IDOLOS.map(i=>`
+          <div class="rounded-2xl border border-border bg-card p-4 flex gap-3 items-start">
+            <div class="h-16 w-16 rounded-full overflow-hidden bg-secondary flex items-center justify-center text-2xl shrink-0" style="box-shadow:0 0 0 2px color-mix(in oklab,var(--primary) 40%,transparent)">
+              ${i.img?`<img src="${i.img}" class="h-full w-full object-cover"/>`:'<span>👤</span>'}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-foreground">${esc(i.nome)}</p>
+              <p class="text-xs opacity-80 mt-1 text-foreground">${esc(i.titulos)}</p>
+            </div>
+          </div>`).join("")}</div>`);
+      case "jogos":{
+const jogos = [
+  { data: "22/07/2026", adv: "Athletico-PR", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "26/07/2026", adv: "Flamengo", local: "Fora", comp: "Campeonato Brasileiro" },
+  { data: "29/07/2026", adv: "Santos", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "09/08/2026", adv: "Grêmio", local: "Fora", comp: "Campeonato Brasileiro" },
+  { data: "12/08/2026", adv: "A definir", local: "A confirmar", comp: "CONMEBOL Sudamericana" },
+  { data: "16/08/2026", adv: "Coritiba", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "19/08/2026", adv: "A definir", local: "Casa", comp: "CONMEBOL Sudamericana" },
+  { data: "23/08/2026", adv: "Chapecoense", local: "Fora", comp: "Campeonato Brasileiro" },
+  { data: "30/08/2026", adv: "Bragantino", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "06/09/2026", adv: "Atlético-MG", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "13/09/2026", adv: "Palmeiras", local: "Fora", comp: "Campeonato Brasileiro" },
+  { data: "20/09/2026", adv: "Internacional", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "07/10/2026", adv: "Cruzeiro", local: "Fora", comp: "Campeonato Brasileiro" },
+  { data: "11/10/2026", adv: "EC Vitória", local: "Casa", comp: "Campeonato Brasileiro" },
+  { data: "18/10/2026", adv: "Vasco da Gama", local: "Casa", comp: "Campeonato Brasileiro" }
+];
+        return section(`${ic("calendar","w-5 h-5 inline -mt-1")} Próximos Jogos`,`<div class="space-y-3">${jogos.map(j=>`
+          <div class="rounded-xl border border-border bg-card p-4 flex items-center gap-4">
+            <div class="h-12 w-12 rounded-lg flex items-center justify-center text-xl text-white gradient-hero">⚽</div>
+            <div class="flex-1"><p class="font-semibold text-foreground">São Paulo × ${esc(j.adv)}</p><p class="text-xs opacity-70 text-foreground">${esc(j.comp)} · ${esc(j.local)}</p></div>
+            <span class="text-xs font-semibold bg-secondary rounded-full px-3 py-1 text-foreground">${esc(j.data)}</span>
+          </div>`).join("")}</div>`);
+      }
+      case "morumbi":
+        return section(`${ic("mapPin","w-5 h-5 inline -mt-1")} Como chegar no Morumbi`,`
+          <p>O <strong>Estádio do Morumbi</strong> fica na Av. Giovanni Gronchi, 1029 — Morumbi, São Paulo — SP, CEP 05656-001.</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            ${[
+              ["🚇 Metrô + Ônibus","Estação Morumbi (Linha 9-Esmeralda) e siga de ônibus ou a pé (~25 min)."],
+              ["🚗 De carro","Acesso pela Marginal Pinheiros, Av. Morumbi e Av. Giovanni Gronchi."],
+              ["🚌 Ônibus","Linhas 6291-10, 7267-10, 748P-10 passam próximo ao estádio."],
+              ["🚕 App de transporte","Use os pontos oficiais nos dias de jogo."]
+            ].map(([t,d])=>`<div class="rounded-xl border border-border bg-card p-4"><h3 class="font-semibold mb-1 text-foreground">${t}</h3><p class="text-xs opacity-80 text-foreground">${d}</p></div>`).join("")}
+          </div>
+          <div class="rounded-2xl overflow-hidden shadow-lg border border-border">
+            <iframe src="https://www.google.com/maps?q=Est%C3%A1dio+do+Morumbi&output=embed" class="w-full h-72 border-0" loading="lazy"></iframe>
+          </div>`);
+      case "quiz": return quizPage();
+case "loja": {
+        const produtos = [
+          {
+            nome: "Camisa Oficial I SPFC",
+            preco: "R$ 349,90",
+            img: "https://static.netshoes.com.br/produtos/camisa-sao-paulo-i-2425-sn-torcedor-new-balance-masculina/14/N24-0314-014/N24-0314-014_zoom1.jpg",
+            link: "#"
+          },
+          {
+            nome: "Camisa Oficial II SPFC",
+            preco: "R$ 349,90",
+            img: "https://static.netshoes.com.br/produtos/camisa-sao-paulo-ii-2425-sn-torcedor-new-balance-masculina/14/N24-0315-014/N24-0315-014_zoom1.jpg",
+            link: "#"
+          },
+          {
+            nome: "Boné New Balance SPFC",
+            preco: "R$ 149,90",
+            img: "https://static.netshoes.com.br/produtos/bone-sao-paulo-aba-curva-new-balance-6-panel-classic/06/N24-0238-006/N24-0238-006_zoom1.jpg",
+            link: "#"
+          },
+          {
+            nome: "Caneca Porcelana SPFC",
+            preco: "R$ 49,90",
+            img: "#",
+            link: "https://www.netshoes.com.br/busca?nsCat=Natural&q=caneca+sao+paulo"
+          },
+          {
+            nome: "Chaveiro Mosquetão Escudo",
+            preco: "R$ 24,90",
+            img: "https://static.netshoes.com.br/produtos/chaveiro-sao-paulo-mosquetao/14/366-9285-014/366-9285-014_zoom1.jpg",
+            link: "#"
+          },
+          {
+            nome: "Bola Campo New Balance",
+            preco: "R$ 199,90",
+            img: "https://static.netshoes.com.br/produtos/bola-de-futebol-campo-sao-paulo-new-balance-infinit-lite/14/N24-0255-014/N24-0255-014_zoom1.jpg",
+            link: "#"
+          }
+        ];
+
+        return section(`${ic("bag","w-5 h-5 inline -mt-1")} Loja Oficial Morumbi`, `
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            ${produtos.map(p => `
+              <div class="rounded-2xl border border-border bg-card p-3 flex flex-col justify-between items-center text-center overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div class="w-full aspect-square rounded-xl bg-muted overflow-hidden flex items-center justify-center mb-3">
+                  <img src="${p.img}" alt="${esc(p.nome)}" class="object-cover w-full h-full hover:scale-105 transition-transform duration-300" onerror="this.src='https://via.placeholder.com/150?text=SPFC'"/>
+                </div>
+                <div class="flex-1 flex flex-col justify-between w-full">
+                  <div>
+                    <p class="text-xs sm:text-sm font-bold leading-tight text-foreground line-clamp-2 h-8 sm:h-10 mb-1">${esc(p.nome)}</p>
+                    <p class="text-sm font-extrabold text-primary gradient-text my-1">${p.preco}</p>
+                  </div>
+                  <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="mt-2 w-full block text-center text-xs font-bold text-white rounded-xl py-2 gradient-hero hover:opacity-90 transition-opacity">
+                    Comprar
+                  </a>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `);
+      }
+      case "contato":
+        return section(`${ic("mail","w-5 h-5 inline -mt-1")} Contato`,`
+          <p>Segue a gente nas redes e fica por dentro de tudo do Tricolor!</p>
+          <div class="space-y-3">
+            ${SOCIAL_CONFIG.filter(s=>state.social[s.key]).map(s=>{
+              const val = state.social[s.key];
+              return `<div class="rounded-2xl border border-border bg-card p-4 flex items-center gap-3">
+                <span class="h-12 w-12 rounded-2xl flex items-center justify-center text-white shrink-0 gradient-hero">${ic(s.icon,"w-6 h-6")}</span>
+                <a href="${socialHref(s.key,val)}" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0">
+                  <p class="text-xs opacity-70 text-foreground">${s.label}</p>
+                  <p class="font-semibold text-foreground truncate">${esc(val)}</p>
+                </a>
+              </div>`;
+            }).join("") || `<p class="text-sm text-muted-foreground text-center">Nenhuma rede social configurada ainda.</p>`}
+          </div>`);
+      case "editar1":
+      case "editar2":
+        return section(`${ic("edit","w-5 h-5 inline -mt-1")} Editar — Página ${key==="editar1"?1:2}`,`
+          <div class="rounded-2xl border-2 border-dashed border-border p-8 text-center">
+            <p class="text-4xl mb-3">📝</p>
+            <p class="font-semibold text-foreground">Página reservada para edição</p>
+            <p class="text-xs text-muted-foreground mt-1">Edite o HTML para personalizar.</p>
+          </div>`);
+    }
+    return "";
+  }
+
+  function quizPage(){
+    const q=state.quiz;
+    const titleHtml = `${ic("help","w-5 h-5 inline -mt-1")} Quiz SPFC`;
+    if(q.done){
+      return section(titleHtml,`
+        <div class="rounded-2xl p-6 text-center text-white shadow-lg gradient-hero">
+          <span class="inline-flex mb-2">${ic("trophy","w-12 h-12")}</span>
+          <p class="text-2xl font-bold">Você acertou ${q.score} de ${QUIZ.length}</p>
+          <p class="opacity-90 mt-1 text-sm">${q.score>=12?"Tricolor de coração! ❤️🤍🖤":q.score>=7?"Mandou bem! 👏":"Estude mais a história do clube! 📚"}</p>
+        </div>
+        <button data-act="quizReset" class="mt-4 w-full rounded-xl py-3 font-semibold text-primary-foreground gradient-hero">Jogar novamente</button>`);
+    }
+    const cur = QUIZ[q.idx];
+    const answered = q.sel!==null;
+    const isLast = q.idx+1>=QUIZ.length;
+    return section(titleHtml,`
+      <div class="flex items-center justify-between text-xs text-muted-foreground"><span>Pergunta ${q.idx+1}/${QUIZ.length}</span><span>Pontos: ${q.score}</span></div>
+      <div class="h-2 rounded-full bg-secondary overflow-hidden"><div class="h-full gradient-hero" style="width:${(q.idx/QUIZ.length)*100}%"></div></div>
+      <div class="rounded-2xl border border-border bg-card p-5">
+        <p class="font-semibold mb-3 text-foreground">${esc(cur.q)}</p>
+        <div class="grid gap-2">
+          ${cur.o.map((opt,i)=>{
+            const correct = q.sel!==null && i===cur.a;
+            const wrong = q.sel===i && i!==cur.a;
+            const cls = correct?'bg-green-500/20 border-green-500':wrong?'bg-red-500/20 border-red-500':'border-border hover:bg-secondary';
+            return `<button data-act="quizAns" data-i="${i}" ${q.sel!==null?'disabled':''} class="text-left rounded-xl px-4 py-3 border transition ${cls} text-foreground">${esc(opt)}</button>`;
+          }).join("")}
+        </div>
+      </div>
+      <button data-act="quizNext" ${answered?'':'disabled'} class="w-full flex items-center justify-center gap-2 rounded-xl py-3 font-semibold text-primary-foreground gradient-hero transition disabled:opacity-40 disabled:cursor-not-allowed">
+        ${isLast?'Ver resultado':'Próxima'} ${ic("arrowRight","w-4 h-4")}
+      </button>`);
+  }
+
+  /* ===================== EVENTS ===================== */
+  function bind(){
+    const root = $("#app");
+    if(!root) return;
+    root.onclick = handleClick;
+    
+    const nick = $("#nickInput");
+    if(nick) {
+      nick.oninput = e => { 
+        state.nick = e.target.value; 
+        const b=$("#enterBtn"); 
+        if(b){ if(state.nick.trim()) b.removeAttribute("disabled"); else b.setAttribute("disabled",""); } 
+      };
+    }
+    
+    const enter = $("#enterBtn"); 
+    if(enter) {
+      enter.onclick = () => { 
+        if(state.nick.trim()) {
+          const bloqueada = findBlockedWord(state.nick);
+          if(bloqueada){
+            alert("🚫 Esse apelido não é permitido neste chat. Escolha outro nome.");
+            return;
+          }
+          setState({entered:true});
+        }
+      };
+    }
+    
+    const mi = $("#msgInput");
+    if(mi){
+      mi.oninput = e => { state.input = e.target.value; };
+      mi.onkeydown = e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } };
+      mi.focus(); mi.selectionStart = mi.value.length;
+    }
+  }
+
+  async function handleClick(e){
+    const stop = e.target.closest("[data-stop]");
+    const t = e.target.closest("[data-act]");
+    if(!t) return;
+    if(stop && !t.contains(stop) && !stop.contains(t)) return;
+    const a = t.dataset.act;
+    switch(a){
+      case "toggleDark": state.dark=!state.dark; render(); break;
+      case "pickAvatar": state.avatar = avatarUrl(t.dataset.seed); render(); break;
+      case "openMenu": setState({menuOpen:true}); break;
+      case "closeMenu": if(e.target===t||!e.target.closest("[data-stop]")) setState({menuOpen:false}); break;
+      case "setPage": setState({page:t.dataset.key, menuOpen:false, openMenu:null, openReactions:null}); break;
+      case "openAvatarPicker": setState({showAvatarPicker:true}); break;
+      case "closeAvatarPicker": if(!e.target.closest("[data-stop]")||e.target===t) setState({showAvatarPicker:false}); break;
+      case "setAvatar": state.avatar = avatarUrl(t.dataset.seed); setState({showAvatarPicker:false}); break;
+      case "openThemes": setState({showThemes:true}); break;
+      case "closeThemes": if(!e.target.closest("[data-stop]")||e.target===t) setState({showThemes:false}); break;
+      case "pickTheme": state.themeIdx=+t.dataset.i; setState({showThemes:false}); break;
+      case "share": shareApp(); break;
+      case "openShare": setState({showShare:true}); break;
+      case "closeShare": if(!e.target.closest("[data-stop]")||e.target===t) setState({showShare:false}); break;
+      case "shareCopy": {
+        try{
+          await navigator.clipboard.writeText(location.href);
+          state.shareMsg="Link copiado!"; render();
+          setTimeout(()=>{state.shareMsg=""; render();},2000);
+        }catch{}
+        break;
+      }
+      case "shareNative": {
+        try{ await navigator.share({title:"Chat Tú és Forte, Tú és Grande",text:"Entre no Chat Tú és Forte, Tú és Grande e vem torcer com a gente!",url:location.href}); }catch{}
+        break;
+      }
+      case "logout": Object.assign(state,{entered:false,messages:[],input:"",editingId:null,replyId:null,page:"chat",menuOpen:false}); render(); break;
+      case "send": send(); break;
+      case "cancelReplyEdit": state.replyId=null; if(state.editingId){state.editingId=null; state.input="";} render(); break;
+      case "toggleMenu": e.stopPropagation(); setState({openMenu: state.openMenu===t.dataset.id?null:t.dataset.id, openReactions:null}); break;
+      case "reply": setState({replyId:t.dataset.id, openMenu:null}); break;
+      case "openReact": setState({openReactions:t.dataset.id, openMenu:null}); break;
+      case "edit": { const m=state.messages.find(x=>x.id===t.dataset.id); if(m){state.editingId=m.id; state.input=m.text; state.replyId=null; state.openMenu=null; render();} break; }
+      case "del": 
+        await deleteDoc(doc(db, "mensagens", t.dataset.id));
+        if(state.editingId===t.dataset.id){state.editingId=null;state.input="";} 
+        state.openMenu=null; 
+        break;
+      case "react": { 
+        const id=t.dataset.id, k=t.dataset.k; 
+        const m=state.messages.find(x=>x.id===id);
+        if(m){
+          const currentReactions = m.reactions || {};
+          await updateDoc(doc(db, "mensagens", id), {
+            [`reactions.${k}`]: (currentReactions[k] || 0) + 1
+          });
+        }
+        state.openReactions=null; 
+        break; 
+      }
+      case "closeOverlays": if(state.openMenu||state.openReactions) setState({openMenu:null,openReactions:null}); break;
+      case "quizAns": { if(state.quiz.sel!==null) return; const i=+t.dataset.i; const cur=QUIZ[state.quiz.idx]; state.quiz.sel=i; if(i===cur.a) state.quiz.score++; render(); break; }
+      case "quizNext": {
+        if(state.quiz.sel===null) return;
+        if(state.quiz.idx+1>=QUIZ.length) state.quiz.done=true;
+        else { state.quiz.idx++; state.quiz.sel=null; }
+        render();
+        break;
+      }
+      case "quizReset": state.quiz={idx:0,score:0,sel:null,done:false}; render(); break;
+    }
+  }
+
+  async function send(){
+    const text = (state.input||"").trim();
+    if(!text) return;
+
+    const bloqueada = findBlockedWord(text);
+    if(bloqueada){
+      alert("🚫 Sua mensagem não pode ser enviada porque contém uma palavra bloqueada neste chat.");
+      return;
+    }
+    
+    if(state.editingId){
+      await updateDoc(doc(db, "mensagens", state.editingId), {
+        text,
+        edited: true
+      });
+      state.editingId=null;
+    } else {
+      await addDoc(collection(db, "mensagens"), {
+        author: "me",
+        nick: state.nick,
+        avatar: state.avatar,
+        text,
+        ts: Date.now(),
+        reactions: {},
+        replyTo: state.replyId || null
+      });
+      state.replyId=null;
+
+      setTimeout(async ()=>{
+        await addDoc(collection(db, "mensagens"), {
+          author: "bot",
+          nick: BOT.nick,
+          avatar: BOT.avatar,
+          text: BOT_REPLIES[Math.floor(Math.random()*BOT_REPLIES.length)],
+          ts: Date.now(),
+          reactions: {}
+        });
+      }, 900+Math.random()*800);
+    }
+    state.input="";
+    render();
+  }
+
+  async function shareApp(){
+    const url = location.href;
+    const data = {title:"ChatVibe",text:"Entre no ChatVibe e converse comigo!",url};
+    try{
+      if(navigator.share) await navigator.share(data);
+      else { await navigator.clipboard.writeText(url); state.shareMsg="Link copiado!"; render(); setTimeout(()=>{state.shareMsg=""; render();},2000); }
+    }catch{}
+  }
+
+  setInterval(() => {
+    if (!state.entered) return;
+    let n = Math.floor(Math.random() * ADS.length);
+    if (n === state.adIndex) n = (n + 1) % ADS.length;
+    state.adIndex = n;
+    updateAdOnly();
+  }, 7000);
+
+  // Executa o primeiro render logo de cara para abrir a tela de login
+  render();
+</script>
+</body>
+</html>
