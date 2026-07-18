@@ -1,0 +1,19 @@
+name: Deploy para Cloudflare Workers
+
+# Roda automaticamente toda vez que você der push na branch principal
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Publicar no Cloudflare com Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
