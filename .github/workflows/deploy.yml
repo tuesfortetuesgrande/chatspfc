@@ -1,6 +1,5 @@
-name: Deploy para Cloudflare Workers
+name: Deploy para Cloudflare Pages
 
-# Roda automaticamente toda vez que você der push na branch principal
 on:
   push:
     branches:
@@ -13,7 +12,8 @@ jobs:
       - name: Baixar código do repositório
         uses: actions/checkout@v4
 
-      - name: Publicar no Cloudflare com Wrangler
+      - name: Publicar no Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: pages deploy . --project-name=chatspfc
