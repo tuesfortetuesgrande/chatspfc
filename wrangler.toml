@@ -1,9 +1,0 @@
-name = "chatspfc"
-main = "index.html"
-compatibility_date = "2026-07-16"
-compatibility_flags = ["nodejs_compat"]
-
-# Serve os arquivos estáticos da raiz do repositório (o index.html e outros
-# arquivos que você adicionar futuramente, como imagens ou scripts separados).
-[assets]
-directory = "./"
