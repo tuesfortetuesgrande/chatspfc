@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -16,23 +17,49 @@
 <script>
   // ============================================================
   // SERVICE WORKER INLINE (via Blob) - offline cache e instalação
+  // ATUALIZADO: estratégia network-first + versão automática do cache,
+  // para nunca mais travar o app numa versão antiga (ex: dentro do APK).
   // ============================================================
   (function registerSW() {
-    // Cria o código do service worker como string
+    // Versão do cache gerada a partir da data/hora atual.
+    // Isso força a criação de um cache novo a cada deploy/recarregamento
+    // do service worker, descartando o antigo automaticamente.
+    const CACHE_VERSION = 'tricolor-chat-' + new Date().toISOString().slice(0,10);
+
     const swCode = `
+      const CACHE_NAME = '${CACHE_VERSION}';
+
       self.addEventListener('install', e => {
+        self.skipWaiting(); // ativa o novo SW imediatamente, sem esperar
         e.waitUntil(
-          caches.open('tricolor-chat-v1').then(cache => {
-            return cache.addAll([
-              '/',
-              '/index.html'
-            ]);
+          caches.open(CACHE_NAME).then(cache => {
+            return cache.addAll(['/', '/index.html']);
           })
         );
       });
+
+      self.addEventListener('activate', e => {
+        // Apaga todos os caches de versões antigas
+        e.waitUntil(
+          caches.keys().then(keys =>
+            Promise.all(
+              keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+            )
+          ).then(() => self.clients.claim())
+        );
+      });
+
       self.addEventListener('fetch', e => {
+        // Network-first: tenta sempre buscar a versão mais nova da rede.
+        // Só usa o cache se estiver offline (sem internet).
         e.respondWith(
-          caches.match(e.request).then(res => res || fetch(e.request))
+          fetch(e.request)
+            .then(res => {
+              const resClone = res.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+              return res;
+            })
+            .catch(() => caches.match(e.request))
         );
       });
     `;
@@ -40,9 +67,14 @@
     const swUrl = URL.createObjectURL(blob);
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register(swUrl)
-        .then(reg => console.log('✅ SW registrado:', reg))
-        .catch(err => console.warn('⚠️ SW não registrado:', err));
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        // Remove registros antigos antes de registrar o novo, para não
+        // acumular múltiplos service workers de versões diferentes.
+        regs.forEach(r => r.unregister());
+        navigator.serviceWorker.register(swUrl)
+          .then(reg => console.log('✅ SW registrado:', reg))
+          .catch(err => console.warn('⚠️ SW não registrado:', err));
+      });
     }
   })();
 </script>
