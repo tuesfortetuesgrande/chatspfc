@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -124,6 +123,7 @@
     getAuth,
     onAuthStateChanged,
     signInWithEmailAndPassword,
+    signInAnonymously,
     signOut
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { 
@@ -266,6 +266,7 @@ const ADS = [
     {key:"titulos",label:"Títulos",icon:"trophy"},
     {key:"idolos",label:"Ídolos",icon:"star"},
     {key:"jogos",label:"Próximos Jogos",icon:"calendar"},
+    {key:"bolao",label:"Bolão & Enquete",icon:"target"},
     {key:"morumbi",label:"Como chegar no Morumbi",icon:"mapPin"},
     {key:"quiz",label:"Quiz SPFC",icon:"help"},
     {key:"loja",label:"Loja",icon:"bag"},
@@ -512,6 +513,42 @@ const IDOLOS = [
     return normalizeText(`${j.data}_${j.home}_${j.away}`).replace(/[^a-z0-9]+/g,"-");
   }
 
+  // Identificador do visitante: agora vem do Firebase Auth (anônimo), não mais do localStorage.
+  // Fica indefinido até o signInAnonymously() completar (ver onAuthStateChanged mais abaixo).
+  function getUid(){
+    return null;
+  }
+
+  // Só é admin quem logou com e-mail/senha (ou Google) — nunca o usuário anônimo.
+  function isAdmin(user){
+    return !!user && !user.isAnonymous;
+  }
+
+  function loadQuizStreak(){
+    try{
+      const raw = localStorage.getItem("spfc_quiz_streak");
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { streak:0, melhorSequencia:0, lastPlayedDate:null, totalAcertos:0 };
+  }
+
+  function updateQuizStreak(scoreDaRodada){
+    const todayStr = new Date().toISOString().slice(0,10);
+    const s = { ...state.quizStreak };
+    if(s.lastPlayedDate !== todayStr){
+      const ontemStr = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+      s.streak = (s.lastPlayedDate === ontemStr) ? (s.streak||0)+1 : 1;
+      s.lastPlayedDate = todayStr;
+    }
+    s.melhorSequencia = Math.max(s.melhorSequencia||0, s.streak);
+    s.totalAcertos = (s.totalAcertos||0) + scoreDaRodada;
+    localStorage.setItem("spfc_quiz_streak", JSON.stringify(s));
+    state.quizStreak = s;
+    if(state.nick.trim()){
+      setDoc(doc(db, "quiz_ranking", state.uid), { nick: state.nick, totalAcertos: s.totalAcertos, melhorSequencia: s.melhorSequencia }, { merge:true }).catch(()=>{});
+    }
+  }
+
   function normalizeText(str){
     return String(str)
       .normalize("NFD")
@@ -535,10 +572,15 @@ const IDOLOS = [
     editingId:null, replyId:null,
     openMenu:null, openReactions:null,
     quiz:{idx:0,score:0,sel:null,done:false},
+    quizStreak: loadQuizStreak(), quizRanking: [],
     social: loadSocial(),
     placares:{}, editingJogoId:null, tempHome:"", tempAway:"", tempGolsHome:"", tempGolsAway:"",
     user:null, adminEmail:"", adminSenha:"", loginError:"",
     brasileirao:{loading:false, error:null, entries:null, updatedAt:null},
+    uid: getUid(),
+    boloes:{}, palpites:{}, palpiteEditingId:null, palpiteTempHome:"", palpiteTempAway:"",
+    enquetes:[], enqueteVotos:{},
+    novaEnquetePergunta:"", novaEnqueteOpcoes:["",""],
   };
 
   const SOCIAL_CONFIG = [
@@ -589,6 +631,7 @@ const IDOLOS = [
     edit: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
     lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
     chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>`,
+    target: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>`,
     sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>`,
     moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
     share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51 8.59 10.49"/></svg>`,
@@ -678,9 +721,58 @@ const IDOLOS = [
     render();
   });
 
-  // ESCUTANDO O LOGIN DO ADMINISTRADOR (só você deve ter uma conta cadastrada no Firebase Authentication)
+  // ESCUTANDO O LOGIN: pode ser o administrador (e-mail/senha) OU um visitante anônimo.
+  // isAdmin() é quem decide se é o administrador de verdade — visitante anônimo NUNCA é admin.
   onAuthStateChanged(auth, (user) => {
+    if(!user){
+      // Ninguém logado (nem admin, nem anônimo ainda, ou acabou de deslogar) -> loga anônimo
+      signInAnonymously(auth).catch(()=>{});
+      return;
+    }
     state.user = user;
+    state.uid = user.uid; // uid real e verificável do Firebase Auth (substitui o spfc_uid do localStorage)
+    render();
+  });
+
+  // ESCUTANDO OS BOLÕES ABERTOS PELO ADMINISTRADOR (um por jogo)
+  onSnapshot(collection(db, "boloes"), (snapshot) => {
+    const boloes = {};
+    snapshot.forEach((doc) => { boloes[doc.id] = doc.data(); });
+    state.boloes = boloes;
+    render();
+  });
+
+  // ESCUTANDO OS PALPITES DE TODO MUNDO (pra calcular o ranking do bolão)
+  onSnapshot(collection(db, "palpites"), (snapshot) => {
+    const palpites = {};
+    snapshot.forEach((doc) => { palpites[doc.id] = doc.data(); });
+    state.palpites = palpites;
+    render();
+  });
+
+  // ESCUTANDO AS ENQUETES CRIADAS PELO ADMINISTRADOR
+  onSnapshot(collection(db, "enquetes"), (snapshot) => {
+    const enquetes = [];
+    snapshot.forEach((doc) => { enquetes.push({ id: doc.id, ...doc.data() }); });
+    enquetes.sort((a,b) => (b.criadaEm||0) - (a.criadaEm||0));
+    state.enquetes = enquetes;
+    render();
+  });
+
+  // ESCUTANDO OS VOTOS DAS ENQUETES
+  onSnapshot(collection(db, "enquete_votos"), (snapshot) => {
+    const votos = {};
+    snapshot.forEach((doc) => { votos[doc.id] = doc.data(); });
+    state.enqueteVotos = votos;
+    render();
+  });
+
+  // ESCUTANDO O RANKING DO QUIZ (quem mais acerta perguntas ao longo do tempo)
+  onSnapshot(collection(db, "quiz_ranking"), (snapshot) => {
+    const ranking = [];
+    snapshot.forEach((doc) => { ranking.push({ uid: doc.id, ...doc.data() }); });
+    ranking.sort((a,b) => (b.totalAcertos||0) - (a.totalAcertos||0));
+    state.quizRanking = ranking.slice(0, 10);
     render();
   });
 
@@ -814,7 +906,7 @@ function updateAdOnly() {
               <div class="flex-1"></div>
               <button data-act="openAvatarPicker" class="flex items-center gap-2 text-xs bg-white/15 backdrop-blur hover:bg-white/25 transition rounded-full pl-1 pr-3 py-1" title="Trocar avatar">
                 <span class="relative">
-                  <img src="${state.avatar}" class="h-7 w-7 rounded-full ring-2 ring-white/50"/>
+                  <img src="${state.avatar}" class="h-7 w-7 rounded-full ring-2 ring-white/50 object-cover"/>
                   <span class="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full bg-white text-black text-[10px] flex items-center justify-center shadow">✎</span>
                 </span>
                 <span class="font-medium max-w-[70px] truncate">${esc(state.nick)}</span>
@@ -937,7 +1029,7 @@ function updateAdOnly() {
       <div class="absolute inset-0 bg-black/60 anim-fade"></div>
       <aside data-stop class="relative w-72 max-w-[85%] h-full bg-card shadow-2xl flex flex-col anim-slide-left">
         <div class="p-4 text-primary-foreground flex items-center gap-3 gradient-hero">
-          <img src="${state.avatar}" class="h-12 w-12 rounded-full ring-2 ring-white/40"/>
+          <img src="${state.avatar}" class="h-12 w-12 rounded-full ring-2 ring-white/40 object-cover"/>
           <div class="flex-1 min-w-0">
             <p class="font-semibold truncate">${esc(state.nick)}</p>
             <p class="text-xs opacity-80">Tricolor de coração</p>
@@ -972,7 +1064,10 @@ function updateAdOnly() {
 
 
   function messageBubble(m){
-    const mine = m.nick === state.nick && m.avatar === state.avatar;
+    // Identifica o dono da mensagem pelo uid do Firebase Auth (login anônimo).
+    // Fallback por nick+avatar só pra mensagens antigas, enviadas antes dessa mudança,
+    // que ainda não tinham o campo "uid" salvo no Firestore.
+    const mine = m.uid ? (m.uid === state.uid) : (m.nick === state.nick && m.avatar === state.avatar);
     const parent = m.replyTo ? state.messages.find(x=>x.id===m.replyTo) : null;
     
     // CORREÇÃO: Garante o fallback de m.reactions para evitar que m.reactions seja undefined
@@ -1031,6 +1126,49 @@ function updateAdOnly() {
       <div class="space-y-4 text-sm leading-relaxed text-foreground">${body}</div>
     </div>`;
   }
+  // 👉 Cole aqui o link (URL) da imagem do escudo de cada time. Enquanto o link
+  // estiver em branco, aparece um círculo com a inicial do time no lugar do escudo.
+  const CRESTS = {
+    "São Paulo": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/4w2Z97Hf9CSOqICK3a8AxQ_96x96.png",
+    "Athletico-PR": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/9LkdBR4L5plovKM8eIy7nQ_96x96.png",
+    "Flamengo": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/orE554NToSkH6nuwofe7Yg_96x96.png",
+    "Santos": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/VHdNOT6wWOw_vJ38GMjMzg_96x96.png",
+    "Grêmio": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/Ku-73v_TW9kpex-IEGb0ZA_96x96.png",
+    "Coritiba": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/LaFlBADLmsjHfGTehCYtuA_96x96.png",
+    "Chapecoense": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/K7JQUKTRsuXfO9YrD5dq5g_96x96.png",
+    "Bragantino": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/lMyw2zn1Z4cdkaxKJWnsQw_96x96.png",
+    "Atlético-MG": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/q9fhEsgpuyRq58OgmSndcQ_96x96.png",
+    "Palmeiras": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/7spurne-xDt2p6C0imYYNA_96x96.png",
+    "Internacional": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/OWVFKuHrQuf4q2Wk0hEmSA_96x96.png",
+    "Cruzeiro": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/Tcv9X__nIh-6wFNJPMwIXQ_96x96.png",
+    "EC Vitória": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/LHSM6VchpkI4NIptoSTHOg_96x96.png",
+    "Vasco da Gama": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/hHwT8LwRmYCAGxQ-STLxYA_96x96.png",
+    "A definir": ""
+  };
+  const JOGOS = [
+    { data: "Qua., 22/07", hora: "21:30", home: "São Paulo", away: "Athletico-PR", comp: "Campeonato Brasileiro" },
+    { data: "Dom., 26/07", hora: "18:30", home: "Flamengo", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "Qua., 29/07", hora: "A confirmar", home: "São Paulo", away: "Santos", comp: "Campeonato Brasileiro" },
+    { data: "08/08", hora: "16:00", home: "Grêmio", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "12/08", hora: "A confirmar", home: "A definir", away: "São Paulo", comp: "CONMEBOL Sudamericana · Oitavas de final · Jogo 1 de 2" },
+    { data: "15/08", hora: "21:00", home: "São Paulo", away: "Coritiba", comp: "Campeonato Brasileiro" },
+    { data: "19/08", hora: "A confirmar", home: "São Paulo", away: "A definir", comp: "CONMEBOL Sudamericana · Oitavas de final · Jogo 2 de 2" },
+    { data: "23/08", hora: "18:30", home: "Chapecoense", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "30/08", hora: "A confirmar", home: "São Paulo", away: "Bragantino", comp: "Campeonato Brasileiro" },
+    { data: "06/09", hora: "A confirmar", home: "São Paulo", away: "Atlético-MG", comp: "Campeonato Brasileiro" },
+    { data: "13/09", hora: "A confirmar", home: "Palmeiras", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "20/09", hora: "A confirmar", home: "São Paulo", away: "Internacional", comp: "Campeonato Brasileiro" },
+    { data: "07/10", hora: "A confirmar", home: "Cruzeiro", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "11/10", hora: "A confirmar", home: "São Paulo", away: "EC Vitória", comp: "Campeonato Brasileiro" },
+    { data: "18/10", hora: "A confirmar", home: "São Paulo", away: "Vasco da Gama", comp: "Campeonato Brasileiro" }
+  ];
+  const crestOrInitial = (nome) => {
+    const url = CRESTS[nome];
+    const fallback = `<div class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white gradient-hero shrink-0">${esc((nome||"?")[0])}</div>`;
+    if (!url) return fallback;
+    return `<img src="${esc(url)}" alt="${esc(nome)}" class="w-10 h-10 object-contain shrink-0" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white gradient-hero shrink-0',textContent:'${esc((nome||"?")[0])}'}))" />`;
+  };
+
   function pageContent(key){
     switch(key){
       case "tv": return section(`${ic("tv","w-5 h-5 inline -mt-1")} TV Online`, `
@@ -1082,49 +1220,7 @@ case "historia":
             </div>
           </div>`).join("")}</div>`);
       case "jogos":{
-        // 👉 Cole aqui o link (URL) da imagem do escudo de cada time. Enquanto o link
-        // estiver em branco, aparece um círculo com a inicial do time no lugar do escudo.
-        const CRESTS = {
-          "São Paulo": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/4w2Z97Hf9CSOqICK3a8AxQ_96x96.png",
-          "Athletico-PR": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/9LkdBR4L5plovKM8eIy7nQ_96x96.png",
-          "Flamengo": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/orE554NToSkH6nuwofe7Yg_96x96.png",
-          "Santos": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/VHdNOT6wWOw_vJ38GMjMzg_96x96.png",
-          "Grêmio": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/Ku-73v_TW9kpex-IEGb0ZA_96x96.png",
-          "Coritiba": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/LaFlBADLmsjHfGTehCYtuA_96x96.png",
-          "Chapecoense": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/K7JQUKTRsuXfO9YrD5dq5g_96x96.png",
-          "Bragantino": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/lMyw2zn1Z4cdkaxKJWnsQw_96x96.png",
-          "Atlético-MG": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/q9fhEsgpuyRq58OgmSndcQ_96x96.png",
-          "Palmeiras": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/7spurne-xDt2p6C0imYYNA_96x96.png",
-          "Internacional": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/OWVFKuHrQuf4q2Wk0hEmSA_96x96.png",
-          "Cruzeiro": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/Tcv9X__nIh-6wFNJPMwIXQ_96x96.png",
-          "EC Vitória": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/LHSM6VchpkI4NIptoSTHOg_96x96.png",
-          "Vasco da Gama": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/hHwT8LwRmYCAGxQ-STLxYA_96x96.png",
-          "A definir": ""
-        };
-const jogos = [
-  { data: "Qua., 22/07", hora: "21:30", home: "São Paulo", away: "Athletico-PR", comp: "Campeonato Brasileiro" },
-  { data: "Dom., 26/07", hora: "18:30", home: "Flamengo", away: "São Paulo", comp: "Campeonato Brasileiro" },
-  { data: "Qua., 29/07", hora: "A confirmar", home: "São Paulo", away: "Santos", comp: "Campeonato Brasileiro" },
-  { data: "08/08", hora: "16:00", home: "Grêmio", away: "São Paulo", comp: "Campeonato Brasileiro" },
-  { data: "12/08", hora: "A confirmar", home: "A definir", away: "São Paulo", comp: "CONMEBOL Sudamericana · Oitavas de final · Jogo 1 de 2" },
-  { data: "15/08", hora: "21:00", home: "São Paulo", away: "Coritiba", comp: "Campeonato Brasileiro" },
-  { data: "19/08", hora: "A confirmar", home: "São Paulo", away: "A definir", comp: "CONMEBOL Sudamericana · Oitavas de final · Jogo 2 de 2" },
-  { data: "23/08", hora: "18:30", home: "Chapecoense", away: "São Paulo", comp: "Campeonato Brasileiro" },
-  { data: "30/08", hora: "A confirmar", home: "São Paulo", away: "Bragantino", comp: "Campeonato Brasileiro" },
-  { data: "06/09", hora: "A confirmar", home: "São Paulo", away: "Atlético-MG", comp: "Campeonato Brasileiro" },
-  { data: "13/09", hora: "A confirmar", home: "Palmeiras", away: "São Paulo", comp: "Campeonato Brasileiro" },
-  { data: "20/09", hora: "A confirmar", home: "São Paulo", away: "Internacional", comp: "Campeonato Brasileiro" },
-  { data: "07/10", hora: "A confirmar", home: "Cruzeiro", away: "São Paulo", comp: "Campeonato Brasileiro" },
-  { data: "11/10", hora: "A confirmar", home: "São Paulo", away: "EC Vitória", comp: "Campeonato Brasileiro" },
-  { data: "18/10", hora: "A confirmar", home: "São Paulo", away: "Vasco da Gama", comp: "Campeonato Brasileiro" }
-];
-        const crestOrInitial = (nome) => {
-          const url = CRESTS[nome];
-          const fallback = `<div class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white gradient-hero shrink-0">${esc((nome||"?")[0])}</div>`;
-          if (!url) return fallback;
-          return `<img src="${esc(url)}" alt="${esc(nome)}" class="w-10 h-10 object-contain shrink-0" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white gradient-hero shrink-0',textContent:'${esc((nome||"?")[0])}'}))" />`;
-        };
-        return section(`${ic("calendar","w-5 h-5 inline -mt-1")} Próximos Jogos`,`<div class="space-y-3">${jogos.map(j=>{
+        return section(`${ic("calendar","w-5 h-5 inline -mt-1")} Próximos Jogos`,`<div class="space-y-3">${JOGOS.map(j=>{
           const id = jogoId(j);
           const placar = state.placares[id];
           const isEditing = state.editingJogoId === id;
@@ -1192,6 +1288,7 @@ const jogos = [
             <iframe src="https://www.google.com/maps?q=Est%C3%A1dio+do+Morumbi&output=embed" class="w-full h-72 border-0" loading="lazy"></iframe>
           </div>`);
       case "quiz": return quizPage();
+      case "bolao": return bolaoPage();
 case "loja": {
         const produtos = [
           {
@@ -1270,7 +1367,7 @@ case "loja": {
           </div>`);
       case "editar1":
         return section(`${ic("lock","w-5 h-5 inline -mt-1")} Administrador`,
-          state.user ? `
+          isAdmin(state.user) ? `
             <div class="rounded-2xl border border-border bg-card p-5 text-center">
               <span class="inline-flex h-12 w-12 rounded-full items-center justify-center text-white mb-3 gradient-hero">${ic("check","w-6 h-6")}</span>
               <p class="font-semibold text-foreground">Você está logado como administrador</p>
@@ -1341,22 +1438,189 @@ case "loja": {
     return "";
   }
 
+  function palpiteId(jid, uid){ return `${jid}__${uid}`; }
+  function enqueteVotoId(eid, uid){ return `${eid}__${uid}`; }
+
+  function calcRankingBolao(){
+    const porUid = {};
+    Object.values(state.palpites).forEach(p=>{
+      const placar = state.placares[p.jogoId];
+      if(!placar) return;
+      let pontos = 0;
+      if(+p.home === +placar.home && +p.away === +placar.away) pontos = 3;
+      else {
+        const rp = Math.sign(p.home - p.away);
+        const rr = Math.sign(placar.home - placar.away);
+        if(rp === rr) pontos = 1;
+      }
+      if(!porUid[p.uid]) porUid[p.uid] = { nick: p.nick, pontos: 0 };
+      porUid[p.uid].pontos += pontos;
+      porUid[p.uid].nick = p.nick;
+    });
+    return Object.entries(porUid).map(([uid,v])=>({uid,...v})).sort((a,b)=>b.pontos-a.pontos).slice(0,10);
+  }
+
+  function bolaoPage(){
+    const titleHtml = `${ic("target","w-5 h-5 inline -mt-1")} Bolão & Enquete`;
+    const ranking = calcRankingBolao();
+    const jogosAbertos = JOGOS.filter(j=>{
+      const id = jogoId(j);
+      return state.boloes[id]?.aberto && !state.placares[id];
+    });
+    const enqueteAtiva = state.enquetes.find(e=>e.ativa);
+
+    const rankingHtml = `
+      <div class="rounded-2xl border border-border bg-card p-4">
+        <p class="font-bold text-foreground mb-2 flex items-center gap-2">${ic("trophy","w-4 h-4")} Ranking do Bolão</p>
+        ${ranking.length?`
+        <div class="space-y-1.5">
+          ${ranking.map((r,i)=>`
+            <div class="flex items-center justify-between text-sm ${r.uid===state.uid?'font-bold':''} text-foreground">
+              <span class="truncate">${i+1}. ${esc(r.nick||"Torcedor")}</span>
+              <span class="shrink-0">${r.pontos} pts</span>
+            </div>`).join("")}
+        </div>`:`<p class="text-sm text-muted-foreground">Ninguém pontuou ainda. Palpite nos jogos abaixo!</p>`}
+      </div>`;
+
+    const palpitesHtml = jogosAbertos.length ? jogosAbertos.map(j=>{
+      const id = jogoId(j);
+      const meuId = palpiteId(id, state.uid);
+      const meuPalpite = state.palpites[meuId];
+      const isEditing = state.palpiteEditingId === id;
+      return `
+      <div class="rounded-xl border border-border bg-card p-4">
+        <p class="text-xs text-muted-foreground mb-2 text-center">${esc(j.data)} · ${esc(j.hora)}</p>
+        <div class="flex items-center gap-2 justify-center text-sm font-semibold text-foreground mb-3">
+          <span class="flex items-center gap-1.5">${crestOrInitial(j.home)}<span>${esc(j.home)}</span></span>
+          <span class="opacity-50">x</span>
+          <span class="flex items-center gap-1.5"><span>${esc(j.away)}</span>${crestOrInitial(j.away)}</span>
+        </div>
+        ${isEditing?`
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            <input id="palpiteHomeInput" type="number" min="0" value="${esc(state.palpiteTempHome)}" class="w-14 rounded-lg border border-border bg-background px-2 py-1.5 text-center outline-none focus:ring-2 ring-ring text-foreground"/>
+            <span class="text-xs opacity-60 text-foreground">x</span>
+            <input id="palpiteAwayInput" type="number" min="0" value="${esc(state.palpiteTempAway)}" class="w-14 rounded-lg border border-border bg-background px-2 py-1.5 text-center outline-none focus:ring-2 ring-ring text-foreground"/>
+            <button data-act="salvarPalpite" data-id="${id}" class="rounded-lg px-3 py-1.5 text-xs font-semibold text-primary-foreground gradient-hero">Salvar</button>
+            <button data-act="cancelarPalpite" class="rounded-lg px-3 py-1.5 text-xs font-semibold border border-border text-foreground hover:bg-secondary">Cancelar</button>
+          </div>`:
+          meuPalpite?`
+          <div class="flex items-center justify-center gap-3">
+            <p class="text-sm text-foreground">Seu palpite: <span class="font-bold">${meuPalpite.home} x ${meuPalpite.away}</span></p>
+            <button data-act="editarPalpite" data-id="${id}" class="text-xs font-semibold rounded-lg px-2.5 py-1 border border-border text-foreground hover:bg-secondary">Editar</button>
+          </div>`:
+          `<button data-act="editarPalpite" data-id="${id}" class="w-full rounded-lg py-2 text-sm font-semibold border border-border text-foreground hover:bg-secondary">Dar palpite</button>`}
+        ${isAdmin(state.user)?`<div class="mt-3 pt-3 border-t border-border flex justify-center"><button data-act="fecharBolao" data-id="${id}" class="text-xs text-muted-foreground hover:text-foreground underline">Encerrar bolão deste jogo</button></div>`:""}
+      </div>`;
+    }).join("") : `<p class="text-sm text-muted-foreground text-center py-4">Nenhum bolão aberto no momento.</p>`;
+
+    const adminBolaoHtml = isAdmin(state.user) ? `
+      <div class="rounded-2xl border border-dashed border-border p-4">
+        <p class="font-bold text-foreground mb-2 text-sm">Administrador — abrir bolão para um jogo</p>
+        <div class="space-y-2">
+          ${JOGOS.filter(j=>!state.placares[jogoId(j)]).map(j=>{
+            const id = jogoId(j);
+            const aberto = state.boloes[id]?.aberto;
+            return `<div class="flex items-center justify-between gap-2 text-xs">
+              <span class="text-foreground truncate">${esc(j.home)} x ${esc(j.away)} — ${esc(j.data)}</span>
+              ${aberto?`<span class="shrink-0 text-green-600 font-semibold">Aberto ✓</span>`:
+                `<button data-act="abrirBolao" data-id="${id}" class="shrink-0 rounded-lg px-2.5 py-1 border border-border text-foreground hover:bg-secondary">Abrir bolão</button>`}
+            </div>`;
+          }).join("")}
+        </div>
+      </div>` : "";
+
+    const votosDaAtiva = enqueteAtiva ? Object.values(state.enqueteVotos).filter(v=>v.enqueteId===enqueteAtiva.id) : [];
+    const totalVotos = votosDaAtiva.length;
+    const meuVotoAtiva = enqueteAtiva ? state.enqueteVotos[enqueteVotoId(enqueteAtiva.id, state.uid)] : null;
+
+    const enqueteHtml = `
+      <div class="rounded-2xl border border-border bg-card p-4">
+        <p class="font-bold text-foreground mb-3 flex items-center gap-2">${ic("help","w-4 h-4")} Enquete</p>
+        ${enqueteAtiva?`
+          <p class="text-sm font-semibold text-foreground mb-3">${esc(enqueteAtiva.pergunta)}</p>
+          <div class="space-y-2">
+            ${enqueteAtiva.opcoes.map((op,i)=>{
+              const votosOpcao = votosDaAtiva.filter(v=>v.opcao===i).length;
+              const pct = totalVotos ? Math.round(votosOpcao/totalVotos*100) : 0;
+              const escolhida = meuVotoAtiva && meuVotoAtiva.opcao===i;
+              return `<button data-act="votarEnquete" data-id="${enqueteAtiva.id}" data-i="${i}" class="w-full text-left rounded-lg border ${escolhida?'border-primary':'border-border'} p-2.5 relative overflow-hidden hover:bg-secondary transition">
+                <div class="absolute inset-y-0 left-0 bg-secondary/70" style="width:${pct}%"></div>
+                <div class="relative flex items-center justify-between text-sm text-foreground">
+                  <span class="truncate pr-2">${escolhida?'✓ ':''}${esc(op)}</span>
+                  <span class="shrink-0 font-semibold">${pct}%</span>
+                </div>
+              </button>`;
+            }).join("")}
+          </div>
+          <p class="text-xs text-muted-foreground mt-2">${totalVotos} voto${totalVotos===1?"":"s"}</p>
+        `:`<p class="text-sm text-muted-foreground">Nenhuma enquete no momento.</p>`}
+      </div>`;
+
+    const adminEnqueteHtml = isAdmin(state.user) ? `
+      <div class="rounded-2xl border border-dashed border-border p-4 space-y-3">
+        <p class="font-bold text-foreground text-sm">Administrador — criar enquete</p>
+        <input id="enquetePerguntaInput" value="${esc(state.novaEnquetePergunta)}" placeholder="Pergunta da enquete" class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 ring-ring text-foreground"/>
+        ${state.novaEnqueteOpcoes.map((op,i)=>`
+          <input data-opcao-idx="${i}" class="enqueteOpcaoInput w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 ring-ring text-foreground" placeholder="Opção ${i+1}" value="${esc(op)}"/>
+        `).join("")}
+        <div class="flex items-center gap-2 flex-wrap">
+          ${state.novaEnqueteOpcoes.length<4?`<button data-act="addOpcaoEnquete" class="text-xs font-semibold rounded-lg px-3 py-1.5 border border-border text-foreground hover:bg-secondary">+ opção</button>`:""}
+          <button data-act="criarEnquete" class="ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-primary-foreground gradient-hero">Publicar enquete</button>
+        </div>
+        ${state.enquetes.length?`
+        <div class="pt-2 border-t border-border space-y-1.5">
+          ${state.enquetes.map(en=>`
+            <div class="flex items-center justify-between gap-2 text-xs">
+              <span class="text-foreground truncate">${esc(en.pergunta)} ${en.ativa?'<span class="text-green-600 font-semibold">(ativa)</span>':'<span class="opacity-50">(encerrada)</span>'}</span>
+              ${en.ativa?`<button data-act="encerrarEnquete" data-id="${en.id}" class="shrink-0 rounded-lg px-2.5 py-1 border border-border text-foreground hover:bg-secondary">Encerrar</button>`:""}
+            </div>`).join("")}
+        </div>`:""}
+      </div>` : "";
+
+    return section(titleHtml, `
+      ${rankingHtml}
+      <p class="font-bold text-foreground text-sm mt-1">Palpites em aberto</p>
+      <div class="space-y-3">${palpitesHtml}</div>
+      ${adminBolaoHtml}
+      ${enqueteHtml}
+      ${adminEnqueteHtml}
+    `);
+  }
+
   function quizPage(){
     const q=state.quiz;
     const titleHtml = `${ic("help","w-5 h-5 inline -mt-1")} Quiz SPFC`;
+    const streakHtml = `<div class="flex items-center justify-between text-xs rounded-lg bg-secondary/60 px-3 py-2 text-foreground">
+      <span>🔥 ${state.quizStreak.streak||0} dia${(state.quizStreak.streak||0)===1?"":"s"} seguido${(state.quizStreak.streak||0)===1?"":"s"} jogando</span>
+      <span>Total de acertos: ${state.quizStreak.totalAcertos||0}</span>
+    </div>`;
     if(q.done){
+      const ranking = state.quizRanking;
       return section(titleHtml,`
+        ${streakHtml}
         <div class="rounded-2xl p-6 text-center text-white shadow-lg gradient-hero">
           <span class="inline-flex mb-2">${ic("trophy","w-12 h-12")}</span>
           <p class="text-2xl font-bold">Você acertou ${q.score} de ${QUIZ.length}</p>
           <p class="opacity-90 mt-1 text-sm">${q.score>=12?"Tricolor de coração! ❤️🤍🖤":q.score>=7?"Mandou bem! 👏":"Estude mais a história do clube! 📚"}</p>
         </div>
-        <button data-act="quizReset" class="mt-4 w-full rounded-xl py-3 font-semibold text-primary-foreground gradient-hero">Jogar novamente</button>`);
+        <button data-act="quizReset" class="mt-4 w-full rounded-xl py-3 font-semibold text-primary-foreground gradient-hero">Jogar novamente</button>
+        <div class="rounded-2xl border border-border bg-card p-4">
+          <p class="font-bold text-foreground mb-2 flex items-center gap-2">${ic("trophy","w-4 h-4")} Ranking — quem mais sabe do SPFC</p>
+          ${ranking.length?`
+          <div class="space-y-1.5">
+            ${ranking.map((r,i)=>`
+              <div class="flex items-center justify-between text-sm ${r.uid===state.uid?'font-bold':''} text-foreground">
+                <span class="truncate">${i+1}. ${esc(r.nick||"Torcedor")}</span>
+                <span class="shrink-0">${r.totalAcertos||0} acertos</span>
+              </div>`).join("")}
+          </div>`:`<p class="text-sm text-muted-foreground">Jogue pra aparecer no ranking!</p>`}
+        </div>`);
     }
     const cur = QUIZ[q.idx];
     const answered = q.sel!==null;
     const isLast = q.idx+1>=QUIZ.length;
     return section(titleHtml,`
+      ${streakHtml}
       <div class="flex items-center justify-between text-xs text-muted-foreground"><span>Pergunta ${q.idx+1}/${QUIZ.length}</span><span>Pontos: ${q.score}</span></div>
       <div class="h-2 rounded-full bg-secondary overflow-hidden"><div class="h-full gradient-hero" style="width:${(q.idx/QUIZ.length)*100}%"></div></div>
       <div class="rounded-2xl border border-border bg-card p-5">
@@ -1427,6 +1691,22 @@ case "loja": {
       as.oninput = e => { state.adminSenha = e.target.value; };
       as.onkeydown = e => { if(e.key==="Enter"){ e.preventDefault(); doAdminLogin(); } };
     }
+
+    const pph = $("#palpiteHomeInput");
+    if(pph) pph.oninput = e => { state.palpiteTempHome = e.target.value; };
+    const ppa = $("#palpiteAwayInput");
+    if(ppa) ppa.oninput = e => { state.palpiteTempAway = e.target.value; };
+
+    const epi = $("#enquetePerguntaInput");
+    if(epi) epi.oninput = e => { state.novaEnquetePergunta = e.target.value; };
+    document.querySelectorAll(".enqueteOpcaoInput").forEach(inp=>{
+      inp.oninput = e => {
+        const idx = +inp.dataset.opcaoIdx;
+        const copia = [...state.novaEnqueteOpcoes];
+        copia[idx] = e.target.value;
+        state.novaEnqueteOpcoes = copia;
+      };
+    });
   }
 
   async function handleClick(e){
@@ -1496,14 +1776,17 @@ case "loja": {
       case "quizAns": { if(state.quiz.sel!==null) return; const i=+t.dataset.i; const cur=QUIZ[state.quiz.idx]; state.quiz.sel=i; if(i===cur.a) state.quiz.score++; render(); break; }
       case "quizNext": {
         if(state.quiz.sel===null) return;
-        if(state.quiz.idx+1>=QUIZ.length) state.quiz.done=true;
+        if(state.quiz.idx+1>=QUIZ.length){
+          state.quiz.done=true;
+          updateQuizStreak(state.quiz.score);
+        }
         else { state.quiz.idx++; state.quiz.sel=null; }
         render();
         break;
       }
       case "quizReset": state.quiz={idx:0,score:0,sel:null,done:false}; render(); break;
       case "editPlacar": {
-        if(!state.user){
+        if(!isAdmin(state.user)){
           alert('Você precisa fazer login como administrador primeiro. Vá até a aba "Administrador" no menu.');
           return;
         }
@@ -1532,6 +1815,68 @@ case "loja": {
       }
       case "adminLogin": await doAdminLogin(); break;
       case "adminLogout": await signOut(auth); break;
+
+      case "editarPalpite": {
+        const id = t.dataset.id;
+        const atual = state.palpites[palpiteId(id, state.uid)];
+        setState({ palpiteEditingId:id, palpiteTempHome: atual?String(atual.home):"", palpiteTempAway: atual?String(atual.away):"" });
+        break;
+      }
+      case "cancelarPalpite": setState({ palpiteEditingId:null, palpiteTempHome:"", palpiteTempAway:"" }); break;
+      case "salvarPalpite": {
+        const id = t.dataset.id;
+        const h = state.palpiteTempHome.trim(), av = state.palpiteTempAway.trim();
+        if(h==="" || av==="" || isNaN(+h) || isNaN(+av) || +h<0 || +av<0){
+          alert("Preencha os dois placares do seu palpite com números válidos.");
+          return;
+        }
+        if(!state.nick.trim()){ alert("Escolha um nome antes de palpitar."); return; }
+        await setDoc(doc(db, "palpites", palpiteId(id, state.uid)), { uid: state.uid, nick: state.nick, jogoId: id, home:+h, away:+av, ts: Date.now() });
+        setState({ palpiteEditingId:null, palpiteTempHome:"", palpiteTempAway:"" });
+        break;
+      }
+      case "abrirBolao": {
+        if(!isAdmin(state.user)) return;
+        const id = t.dataset.id;
+        await setDoc(doc(db, "boloes", id), { aberto:true });
+        render();
+        break;
+      }
+      case "fecharBolao": {
+        if(!isAdmin(state.user)) return;
+        const id = t.dataset.id;
+        await setDoc(doc(db, "boloes", id), { aberto:false });
+        render();
+        break;
+      }
+      case "addOpcaoEnquete": {
+        if(state.novaEnqueteOpcoes.length>=4) return;
+        setState({ novaEnqueteOpcoes:[...state.novaEnqueteOpcoes, ""] });
+        break;
+      }
+      case "criarEnquete": {
+        if(!isAdmin(state.user)) return;
+        const pergunta = state.novaEnquetePergunta.trim();
+        const opcoes = state.novaEnqueteOpcoes.map(o=>o.trim()).filter(Boolean);
+        if(!pergunta || opcoes.length<2){ alert("Preencha a pergunta e ao menos 2 opções."); return; }
+        await addDoc(collection(db, "enquetes"), { pergunta, opcoes, ativa:true, criadaEm: Date.now() });
+        setState({ novaEnquetePergunta:"", novaEnqueteOpcoes:["",""] });
+        break;
+      }
+      case "encerrarEnquete": {
+        if(!isAdmin(state.user)) return;
+        const id = t.dataset.id;
+        await updateDoc(doc(db, "enquetes", id), { ativa:false });
+        render();
+        break;
+      }
+      case "votarEnquete": {
+        const id = t.dataset.id, i = +t.dataset.i;
+        if(!state.nick.trim()){ alert("Escolha um nome antes de votar."); return; }
+        await setDoc(doc(db, "enquete_votos", enqueteVotoId(id, state.uid)), { enqueteId:id, uid:state.uid, opcao:i, ts: Date.now() });
+        render();
+        break;
+      }
     }
   }
 
@@ -1569,6 +1914,7 @@ case "loja": {
     } else {
       await addDoc(collection(db, "mensagens"), {
         author: "me",
+        uid: state.uid,
         nick: state.nick,
         avatar: state.avatar,
         text,
