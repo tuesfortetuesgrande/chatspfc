@@ -659,7 +659,9 @@ hs.src = ('//s10.histats.com/js15_as.js');
   // Coloque os links diretos terminados em .jpg ou .png aqui dentro
   const AVATAR_SEEDS = [
     "https://is.zobj.net/image-server/v1/images?r=OPxZY6gXmM7ojcjwU7GyDBibwKkCJju9UkwoUhmkBjbnQIKOXp22oEMk0cHvGLXLRzplF5ZkCwvYIwPHhavOMYbQG8YcPp1aeRvQzzyo3cAaJ6eeLPCF8UVXuTfwMv1NkGxLCUJvZg6rAEojgT2oF6HZkH8J5qAW-DfxH4AQqZ2qissn_zYZjFd-rDCgSifLzzzcuaPsa2GxWp11UX6OhIdx1WD9syS3qb913w",
-    "https://w0.peakpx.com/wallpaper/594/964/HD-wallpaper-cria-favela-trap.jpg",
+    "https://i.imgur.com/kkegmAE.jpeg",
+    "https://i.imgur.com/Skao6S5.jpeg",
+    "https://i.imgur.com/AgLiCso.jpeg",
     "https://i.pinimg.com/736x/57/7f/cc/577fcc292fc025fa6fcf8a2470f89f48.jpg",
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSps-m8uYQTkJA49YslW3b3aCTWPwODyu9fLBce-lLFbg&s=10",
     "https://i.pinimg.com/originals/17/3f/9f/173f9fc74cf65b4b105e1ff50d86569a.jpg",
@@ -669,7 +671,9 @@ hs.src = ('//s10.histats.com/js15_as.js');
     "https://i.pinimg.com/474x/8d/d1/15/8dd11585d5fb60c8ef1aac6ace1eef48.jpg",
     "https://i.pinimg.com/736x/a4/6b/71/a46b71784358db5f9070025491c65e5b.jpg",
     "https://i.pinimg.com/736x/4b/af/a3/4bafa3042fd5e55e2e0de2b40fd73928.jpg",
-    "https://i.pinimg.com/736x/5e/25/35/5e2535279df34aef0c738adecf1aad69.jpg"
+    "https://i.pinimg.com/736x/5e/25/35/5e2535279df34aef0c738adecf1aad69.jpg",
+    "https://i.imgur.com/kixr9Yt.jpeg",
+    "https://i.imgur.com/3DLRfNk.jpeg",
   ];
   
   const avatarUrl = s => s;
@@ -1510,7 +1514,6 @@ const IDOLOS = [
     ligarMensagens();
     ligarForumPosts();
     ligarForumStories();
-    ligarMinhasStoryViews();
     ligarQuizRanking();
   });
 
@@ -1541,42 +1544,24 @@ const IDOLOS = [
   }
   ligarForumPosts();
 
-  // O story em si (foto/avatar/nick) continua visível pra todo mundo logado — isso é
-  // normal, é o objetivo do recurso. O que precisa ficar privado é só a CONTAGEM de
-  // visualizações, então esse número vive numa subcoleção separada
-  // (forum_stories/{uid}/views) que só o dono tem permissão de LER — quem vê o story
-  // de outra pessoa consegue gravar sua própria visualização ali, mas não consegue
-  // listar quem mais viu.
-  let unsubForumStories = null;
+  // Story agora só é visível pro próprio dono (mudança pedida: antes qualquer pessoa
+  // logada via a coleção inteira; agora escutamos só o documento do usuário atual —
+  // isso também é o que permite travar a regra do Firestore por dono, sem quebrar
+  // a leitura por causa de query sem filtro).
+  let unsubForumStory = null;
   function ligarForumStories(){
-    if (unsubForumStories) { unsubForumStories(); unsubForumStories = null; }
-    unsubForumStories = onSnapshot(collection(db, "forum_stories"), (snapshot) => {
+    if (unsubForumStory) { unsubForumStory(); unsubForumStory = null; }
+    unsubForumStory = onSnapshot(doc(db, "forum_stories", state.uid), (snap) => {
       const now = Date.now();
-      state.forumStories = snapshot.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(s => !s.expiresAt || s.expiresAt > now)
-        .sort((a,b) => b.ts - a.ts);
+      if (!snap.exists()) { state.forumStories = []; render(); return; }
+      const s = { id: snap.id, ...snap.data() };
+      state.forumStories = (!s.expiresAt || s.expiresAt > now) ? [s] : [];
       render();
     }, (err) => {
-      console.error("Erro ao carregar stories do fórum (confira as regras de LEITURA de 'forum_stories'):", err);
+      console.error("Erro ao carregar seu story (confira as regras de LEITURA de 'forum_stories'):", err);
     });
   }
   ligarForumStories();
-
-  // Contagem de visualizações do PRÓPRIO story — só existe (e só é permitido ler)
-  // pro dono, por isso escutamos sempre com o uid atual.
-  let unsubMinhasStoryViews = null;
-  function ligarMinhasStoryViews(){
-    if (unsubMinhasStoryViews) { unsubMinhasStoryViews(); unsubMinhasStoryViews = null; }
-    unsubMinhasStoryViews = onSnapshot(collection(db, "forum_stories", state.uid, "views"), (snapshot) => {
-      state.forumMinhasStoryViews = snapshot.size;
-      render();
-    }, (err) => {
-      // Normal dar erro aqui pra quem não tem story publicado ainda ou é visitante sem
-      // conta — não precisa logar como erro grave.
-    });
-  }
-  ligarMinhasStoryViews();
 
   // ESCUTANDO OS PALPITES DE TODO MUNDO (pra calcular o ranking do bolão)
   onSnapshot(collection(db, "palpites"), (snapshot) => {
@@ -2457,7 +2442,7 @@ function updateAdOnly() {
     // Usa a versão mais atual do story (do listener em tempo real), caindo pro snapshot salvo se sumir da lista
     const s = state.forumStories.find(x=>x.id===sv.id) || sv;
     const isOwner = s.uid===state.uid;
-    const viewCount = state.forumMinhasStoryViews||0;
+    const viewCount = (s.viewedBy||[]).filter(u=>u!==s.uid).length;
     return `<div data-act="forumCloseStory" class="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 anim-fade">
       <div data-stop class="relative w-full max-w-xs aspect-[9/16] rounded-2xl overflow-hidden bg-black">
         <button data-act="forumCloseStory" class="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center">${ic("close","w-4 h-4")}</button>
@@ -3817,10 +3802,8 @@ case "loja": {
         if(s){
           setState({ forumStoryViewer: s });
           if(s.uid!==state.uid){
-            // Grava a visualização num sub-documento que só o dono consegue LER — quem
-            // está vendo o story de outra pessoa consegue criar esse registro (é a
-            // "prova" de que viu), mas não consegue listar quem mais viu.
-            await setDoc(doc(db, "forum_stories", s.id, "views", state.uid), { ts: Date.now() }).catch(()=>{});
+            const jaViu = (s.viewedBy||[]).includes(state.uid);
+            if(!jaViu) await updateDoc(doc(db, "forum_stories", s.id), { viewedBy: arrayUnion(state.uid) }).catch(()=>{});
           }
         }
         break;
