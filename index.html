@@ -1347,6 +1347,7 @@ const IDOLOS = [
     moreShare: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>`,
     check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
     arrowRight: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+    arrowLeft: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
     instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>`,
     tiktok: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2c.35 2.24 1.86 3.94 4.15 4.24v3.14c-1.55.05-2.98-.44-4.15-1.32v6.7A5.95 5.95 0 1 1 10.7 8.9c.28 0 .56.02.84.06v3.13a2.83 2.83 0 1 0 2 2.7V2z"/></svg>`,
     youtube: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 6.5a2.8 2.8 0 0 0-2-2C18.7 4 12 4 12 4s-6.7 0-8.5.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 1 12a29 29 0 0 0 .5 5.5 2.8 2.8 0 0 0 2 2C5.3 20 12 20 12 20s6.7 0 8.5-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 23 12a29 29 0 0 0-.5-5.5zM9.8 15.5v-7l6 3.5z"/></svg>`,
@@ -1483,15 +1484,19 @@ const IDOLOS = [
     }
     // Sem sessão cadastrada: mantém o id local (guest) que já está em state.uid.
 
-    if(uidDeConta !== ultimoUidDeConta){
-      ultimoUidDeConta = uidDeConta;
-      // Religa os feeds que dependem de permissão de leitura já confirmada — cobre o caso
-      // clássico em que a página carrega, os listeners tentam ler antes do login confirmar,
-      // a leitura é negada em silêncio, e só um F5 religava tudo de novo.
-      ligarMensagens();
-      ligarForumPosts();
-      ligarQuizRanking();
-    }
+    ultimoUidDeConta = uidDeConta;
+    // Religa os feeds que dependem de permissão de leitura já confirmada — cobre o caso
+    // clássico em que a página carrega, os listeners tentam ler antes do login confirmar,
+    // a leitura é negada em silêncio, e só um F5 (ou logout/login) religava tudo de novo.
+    // IMPORTANTE: isso roda em TODO disparo do onAuthStateChanged, não só quando o uid de
+    // conta muda — porque pra quem entra como visitante (uidDeConta sempre null, já que
+    // login anônimo está desativado) a comparação "mudou?" nunca era verdadeira, então o
+    // listener que nasceu morto (por causa da corrida contra a confirmação do login) nunca
+    // era religado. Era exatamente esse o motivo do fórum só atualizar depois de sair e
+    // entrar de novo numa conta cadastrada.
+    ligarMensagens();
+    ligarForumPosts();
+    ligarQuizRanking();
   });
 
   // ESCUTANDO OS BOLÕES ABERTOS PELO ADMINISTRADOR (um por jogo)
@@ -1917,6 +1922,7 @@ function updateAdOnly() {
 
           <!-- Subheader: página atual + ações rápidas -->
           <div class="subheader-bar flex items-center gap-2 px-3 py-2 text-xs font-medium text-white gradient-hero">
+            <button data-act="openMenu" class="h-7 w-7 shrink-0 rounded-full hover:bg-white/15 flex items-center justify-center transition" title="Voltar / Menu" aria-label="Voltar para o menu">${ic("arrowLeft","w-4 h-4")}</button>
             <span class="flex items-center gap-1.5 min-w-0 flex-1">
               <span class="opacity-90">${ic(pageMeta.icon,"w-4 h-4")}</span>
               <span class="truncate">${esc(pageMeta.label)}</span>
@@ -2023,7 +2029,7 @@ function updateAdOnly() {
   }
 
   function downloadFaqModal(){
-    const apkUrl = "https://github.com/tuesfortetuesgrande/chatspfc/releases/download/1.0.0/chatspfc.5.apk";
+    const apkUrl = "https://github.com/tuesfortetuesgrande/chatspfc/releases/download/1.0.0/chatspfc.6.apk";
     const faqItems = [
       {
         q: `Por que o celular avisa que o app "pode ser nocivo"?`,
@@ -2387,14 +2393,6 @@ function updateAdOnly() {
     }catch(e){ alert("Não foi possível publicar o story. Tente uma foto menor."); }
   }
 
-  async function forumShare(p){
-    const url = location.href;
-    try{
-      if(navigator.share) await navigator.share({ text: p.text, url });
-      else if(navigator.clipboard){ await navigator.clipboard.writeText(p.text+" "+url); state.shareMsg="Link copiado!"; render(); setTimeout(()=>{state.shareMsg=""; render();},2000); }
-    }catch{}
-  }
-
   function forumStoriesBar(){
     const mine = state.forumStories.find(s=>s.uid===state.uid);
     let html = `<button data-act="forumAddStory" class="flex flex-col items-center gap-1 shrink-0 w-16">
@@ -2464,7 +2462,6 @@ function updateAdOnly() {
         <button data-act="forumLike" data-id="${p.id}" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-semibold hover:bg-secondary ${myVote==="like"?"text-primary":"text-muted-foreground"}">${ic("thumbsUp","w-4 h-4"+(myVote==="like"?" fill-current":""))} ${forumFmt(likes.length)}</button>
         <button data-act="forumDislike" data-id="${p.id}" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-semibold hover:bg-secondary ${myVote==="dislike"?"text-destructive":"text-muted-foreground"}">${ic("thumbsDown","w-4 h-4"+(myVote==="dislike"?" fill-current":""))} ${forumFmt(dislikes.length)}</button>
         <button data-act="forumToggleComments" data-id="${p.id}" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-semibold text-muted-foreground hover:bg-secondary">${ic("comment","w-4 h-4")} ${p.commentsCount||0}</button>
-        <button data-act="forumShare" data-id="${p.id}" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-semibold text-muted-foreground hover:bg-secondary ml-auto">${ic("moreShare","w-3.5 h-3.5")} Compartilhar</button>
       </div>
       ${open?`
       <div class="mt-3 pt-3 border-t border-border space-y-2.5">
@@ -3708,12 +3705,12 @@ case "loja": {
         // aqui dentro — diferente de compartilhar o link puro do GitHub.
         if (typeof gtag === "function") {
           gtag("event", "file_download", {
-            file_name: "chatspfc.5.apk",
+            file_name: "chatspfc.6.apk",
             file_extension: "apk",
-            link_url: "https://github.com/tuesfortetuesgrande/chatspfc/releases/download/1.0.0/chatspfc.5.apk"
+            link_url: "https://github.com/tuesfortetuesgrande/chatspfc/releases/download/1.0.0/chatspfc.6.apk"
           });
         }
-        window.open("https://github.com/tuesfortetuesgrande/chatspfc/releases/download/1.0.0/chatspfc.5.apk", "_blank");
+        window.open("https://github.com/tuesfortetuesgrande/chatspfc/releases/download/1.0.0/chatspfc.6.apk", "_blank");
         setState({ menuOpen:false, showDownloadFaq:false });
         break;
       }
@@ -3778,11 +3775,6 @@ case "loja": {
         break;
       }
       case "forumCloseStory": if(!e.target.closest("[data-stop]")||t.tagName==="BUTTON") setState({forumStoryViewer:null}); break;
-      case "forumShare": {
-        const p = state.forumPosts.find(x=>x.id===t.dataset.id);
-        if(p) await forumShare(p);
-        break;
-      }
       case "quizGoHome": clearQuizTimer(); state.quiz.screen="home"; render(); break;
       case "quizGoHowTo": state.quiz.screen="howto"; render(); break;
       case "quizGoPhases": clearQuizTimer(); quizResetSessao(); state.quiz.screen="phases"; render(); break;
@@ -3957,6 +3949,52 @@ case "loja": {
       else { await navigator.clipboard.writeText(url); state.shareMsg="Link copiado!"; render(); setTimeout(()=>{state.shareMsg=""; render();},2000); }
     }catch{}
   }
+
+  // ===================== INTEGRAÇÃO COM O BOTÃO FÍSICO DE VOLTAR (ANDROID/KODULAR) =====================
+  // O Kodular deve chamar esta função via WebViewer.RunJavaScript("handleAndroidBack()")
+  // dentro do evento "Screen.BackPressed". Ela decide o que fazer dentro do app em vez de
+  // deixar o botão físico sair direto do aplicativo:
+  //   1) fecha qualquer modal aberto (temas, avatar, compartilhar, FAQ de download)
+  //   2) fecha o menu/drawer lateral, se estiver aberto
+  //   3) tira o foco do campo de digitar mensagem do chat (que está dentro do iframe),
+  //      caso o "modo teclado" esteja ativo, fazendo o cabeçalho reaparecer
+  //   4) se a pessoa estiver em outra aba (não no chat), volta pra aba do chat
+  //   5) se nada disso se aplicar (já está no chat, sem nada aberto), retorna false/"exit",
+  //      indicando que o Kodular pode deixar o botão fechar o app normalmente.
+  // Além do "return", também avisamos o resultado via AppInventor.setWebViewString, que é a forma
+  // mais confiável de o bloco do Kodular capturar a resposta desta função (ouvindo
+  // WebViewer1.WebViewStringChanged), já que o valor de retorno de RunJavaScript nem sempre
+  // chega de volta aos blocos.
+  window.handleAndroidBack = function () {
+    let handled = false;
+    try {
+      if (state.showThemes || state.showAvatarPicker || state.showShare || state.showDownloadFaq) {
+        setState({ showThemes: false, showAvatarPicker: false, showShare: false, showDownloadFaq: false });
+        handled = true;
+      } else if (state.menuOpen) {
+        setState({ menuOpen: false });
+        handled = true;
+      } else {
+        const frame = document.getElementById("msnChatFrame");
+        const active = frame && frame.contentDocument ? frame.contentDocument.activeElement : null;
+        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) {
+          active.blur();
+          handled = true;
+        } else if (state.page !== "chat") {
+          setState({ page: "chat" });
+          handled = true;
+        }
+      }
+    } catch (e) {
+      handled = false;
+    }
+    try {
+      if (window.AppInventor && window.AppInventor.setWebViewString) {
+        window.AppInventor.setWebViewString(handled ? "handled" : "exit");
+      }
+    } catch (e) { /* ignora se não estiver dentro do Kodular */ }
+    return handled;
+  };
 
   setInterval(() => {
     if (!state.entered) return;
