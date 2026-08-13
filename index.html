@@ -52,9 +52,22 @@
   // ============================================================
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
+      // updateViaCache:'none' impede que o PRÓPRIO arquivo sw.js fique preso no
+      // cache HTTP do navegador — sem isso, o app podia nunca perceber que existe
+      // uma versão nova do Service Worker pra instalar.
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
         .then(reg => console.log('✅ SW registrado:', reg.scope))
         .catch(err => console.warn('⚠️ SW não registrado:', err));
+    });
+
+    // Quando o novo Service Worker assume o controle (após um deploy novo),
+    // recarrega a página automaticamente pra já entrar com a versão atualizada,
+    // sem precisar fechar o app nem limpar cache manualmente.
+    let jaRecarregou = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (jaRecarregou) return;
+      jaRecarregou = true;
+      window.location.reload();
     });
   }
 </script>
@@ -2287,6 +2300,7 @@ function updateAdOnly() {
   }
 
   async function forumPublish(){
+    if(state.isGuest){ alert("Só quem tem cadastro (e-mail/senha) pode publicar no fórum. Visitantes podem ler as publicações, mas pra postar é preciso criar uma conta."); return; }
     const text = (state.forumInput||"").trim();
     if(!text) return;
     if(!state.nick.trim()){ alert("Escolha um nick antes de publicar no fórum."); return; }
@@ -2488,6 +2502,12 @@ function updateAdOnly() {
         </div>
 
         <div class="bg-card border border-border rounded-2xl p-4 shadow-card">
+          ${state.isGuest ? `
+          <div class="text-center py-2">
+            <p class="text-sm text-muted-foreground">Você está vendo o fórum como visitante. Crie uma conta pra poder publicar.</p>
+            <button data-act="logout" class="mt-3 px-5 py-2 rounded-xl text-sm font-semibold text-primary-foreground gradient-hero">Criar conta / Fazer login</button>
+          </div>
+          ` : `
           <div class="flex gap-3">
             <img src="${state.avatar}" class="h-10 w-10 rounded-full object-cover shrink-0"/>
             <textarea id="forumComposer" rows="2" maxlength="500" placeholder="No que você está pensando, torcedor?"
@@ -2497,6 +2517,7 @@ function updateAdOnly() {
             <span id="forumCounter" class="text-[11px] text-muted-foreground">${500-state.forumInput.length} caracteres</span>
             <button data-act="forumPublish" ${state.forumInput.trim()?"":"disabled"} class="px-5 py-2 rounded-xl text-sm font-semibold text-primary-foreground gradient-hero disabled:opacity-40 disabled:cursor-not-allowed">Publicar</button>
           </div>
+          `}
         </div>
 
         <div class="space-y-4">
