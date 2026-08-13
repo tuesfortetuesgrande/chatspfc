@@ -1,7 +1,7 @@
 // sw.js — Service Worker do Tricolor Chat
 // Precisa estar na RAIZ do site (mesmo nível do index.html) para o scope "/" funcionar.
 
-const CACHE_NAME = 'tricolor-chat-v2';
+const CACHE_NAME = 'tricolor-chat-v3';
 const APP_SHELL = [
   '/',
   '/index.html'
@@ -29,9 +29,30 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Serve do cache primeiro; se não tiver, busca na rede e guarda uma cópia
+// Serve o HTML sempre da rede primeiro (assim toda atualização publicada aparece
+// na hora, sem precisar limpar cache); só cai pro cache se estiver sem internet.
+// Os demais arquivos estáticos (imagens, ícones etc.) continuam cache-primeiro,
+// que é mais rápido e não muda com frequência.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const ehNavegacao = event.request.mode === 'navigate' ||
+    (event.request.headers.get('accept') || '').includes('text/html');
+
+  if (ehNavegacao) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/index.html')))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
