@@ -1509,6 +1509,7 @@ const IDOLOS = [
     // entrar de novo numa conta cadastrada.
     ligarMensagens();
     ligarForumPosts();
+    ligarForumStories();
     ligarQuizRanking();
   });
 
@@ -1539,16 +1540,24 @@ const IDOLOS = [
   }
   ligarForumPosts();
 
-  onSnapshot(collection(db, "forum_stories"), (snapshot) => {
-    const now = Date.now();
-    state.forumStories = snapshot.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(s => !s.expiresAt || s.expiresAt > now)
-      .sort((a,b) => b.ts - a.ts);
-    render();
-  }, (err) => {
-    console.error("Erro ao carregar stories do fórum (confira as regras de LEITURA de 'forum_stories'):", err);
-  });
+  // Story agora só é visível pro próprio dono (mudança pedida: antes qualquer pessoa
+  // logada via a coleção inteira; agora escutamos só o documento do usuário atual —
+  // isso também é o que permite travar a regra do Firestore por dono, sem quebrar
+  // a leitura por causa de query sem filtro).
+  let unsubForumStory = null;
+  function ligarForumStories(){
+    if (unsubForumStory) { unsubForumStory(); unsubForumStory = null; }
+    unsubForumStory = onSnapshot(doc(db, "forum_stories", state.uid), (snap) => {
+      const now = Date.now();
+      if (!snap.exists()) { state.forumStories = []; render(); return; }
+      const s = { id: snap.id, ...snap.data() };
+      state.forumStories = (!s.expiresAt || s.expiresAt > now) ? [s] : [];
+      render();
+    }, (err) => {
+      console.error("Erro ao carregar seu story (confira as regras de LEITURA de 'forum_stories'):", err);
+    });
+  }
+  ligarForumStories();
 
   // ESCUTANDO OS PALPITES DE TODO MUNDO (pra calcular o ranking do bolão)
   onSnapshot(collection(db, "palpites"), (snapshot) => {
