@@ -582,7 +582,9 @@ hs.src = ('//s10.histats.com/js15_as.js');
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signInAnonymously,
-    signOut
+    signOut,
+    setPersistence,
+    browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { 
     getFirestore, 
@@ -626,6 +628,19 @@ hs.src = ('//s10.histats.com/js15_as.js');
   // (placar, bolão, enquete), para que as regras de segurança consigam
   // reconhecer request.auth como o administrador, e não como o visitante anônimo.
   const adminDb = getFirestore(adminApp);
+
+  // Força persistência local (IndexedDB/localStorage) explicitamente em vez de confiar
+  // no padrão do SDK. Isso é o que faz o login "ficar salvo" mesmo saindo do app e
+  // voltando minutos/horas depois — sem isso, alguns navegadores e principalmente
+  // WebViews de APKs empacotados podem cair silenciosamente em persistência de sessão
+  // (perdida ao fechar o app) em vez de persistência local. Feito best-effort: se falhar,
+  // o app continua funcionando, só sem a persistência garantida.
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.warn("Não foi possível fixar persistência local do login do visitante:", err);
+  });
+  setPersistence(adminAuth, browserLocalPersistence).catch((err) => {
+    console.warn("Não foi possível fixar persistência local do login do administrador:", err);
+  });
 
   /* ===================== DATA ===================== */
   // Coloque os links diretos terminados em .jpg ou .png aqui dentro
