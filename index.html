@@ -2583,7 +2583,7 @@ function updateAdOnly() {
           <p class="text-sm font-semibold text-foreground">${esc(state.nick)}</p>
         </div>
         <div class="flex-1 min-h-0 flex flex-col px-4 pb-2 overflow-y-auto scrollbar-thin">
-          <input id="forumComposerTitle" maxlength="100" placeholder="Título (opcional) — deixa a galera curiosa 👀" value="${esc(state.forumTitleInput)}"
+          <input id="forumComposerTitle" maxlength="100" placeholder="Título" value="${esc(state.forumTitleInput)}"
             class="w-full bg-transparent outline-none text-base font-bold text-foreground placeholder:text-muted-foreground placeholder:font-normal mb-2 shrink-0"/>
           <textarea id="forumComposer" maxlength="500" placeholder="No que você está pensando, torcedor?"
             class="w-full flex-1 min-h-[160px] bg-transparent outline-none resize-none text-base text-foreground placeholder:text-muted-foreground">${esc(state.forumInput)}</textarea>
