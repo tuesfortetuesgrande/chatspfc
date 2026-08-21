@@ -1293,6 +1293,7 @@ const IDOLOS = [
     quizStreak: loadQuizStreak(), quizRanking: [],
     social: loadSocial(),
     placares:{}, editingJogoId:null, tempHome:"", tempAway:"", tempGolsHome:"", tempGolsAway:"",
+    jogosFiltro:"proximos",
     user:null, adminEmail:"", adminSenha:"", loginError:"",
     authMode:"signup", authEmail:"", authSenha:"", authError:"", authLoading:false,
     isGuest:false, showGuestInfo:false,
@@ -2583,7 +2584,7 @@ function updateAdOnly() {
           <p class="text-sm font-semibold text-foreground">${esc(state.nick)}</p>
         </div>
         <div class="flex-1 min-h-0 flex flex-col px-4 pb-2 overflow-y-auto scrollbar-thin">
-          <input id="forumComposerTitle" maxlength="100" placeholder="Título" value="${esc(state.forumTitleInput)}"
+          <input id="forumComposerTitle" maxlength="100" placeholder="Título (opcional) — deixa a galera curiosa 👀" value="${esc(state.forumTitleInput)}"
             class="w-full bg-transparent outline-none text-base font-bold text-foreground placeholder:text-muted-foreground placeholder:font-normal mb-2 shrink-0"/>
           <textarea id="forumComposer" maxlength="500" placeholder="No que você está pensando, torcedor?"
             class="w-full flex-1 min-h-[160px] bg-transparent outline-none resize-none text-base text-foreground placeholder:text-muted-foreground">${esc(state.forumInput)}</textarea>
@@ -2621,7 +2622,15 @@ function updateAdOnly() {
     "Cruzeiro": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/Tcv9X__nIh-6wFNJPMwIXQ_96x96.png",
     "EC Vitória": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/LHSM6VchpkI4NIptoSTHOg_96x96.png",
     "Vasco da Gama": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/hHwT8LwRmYCAGxQ-STLxYA_96x96.png",
-    "Bolívar": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/9205ld_2yc8dZSaWBtIsWg_96x96.png"
+    "Bolívar": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/9205ld_2yc8dZSaWBtIsWg_96x96.png",
+    "Boca Juniors": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/YO1impuFJT2hex6wvCd9Pw_96x96.png",
+    "Mirassol": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/5J3JY7fcdiDYU5rbPW7AKA_96x96.png",
+    "Bahia": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/nIdbR6qIUDyZUBO9vojSPw_96x96.png",
+    "Corinthians": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/tCMSqgXVHROpdCpQhzTo1g_96x96.png",
+    "Fluminense": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/fCMxMMDF2AZPU7LzYKSlig_96x96.png",
+    "Botafogo": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/KLDWYp-H8CAOT9H_JgizRg_48x48.png",
+    "Remo": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/bENrK5iSMF6sXrEkDNNxng_48x48.png",
+    "Athletico-PR": "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/9LkdBR4L5plovKM8eIy7nQ_48x48.png"
   };
   const JOGOS = [
     { data: "Qua., 22/07", hora: "21:30", home: "São Paulo", away: "Athletico-PR", comp: "Campeonato Brasileiro" },
@@ -2632,13 +2641,21 @@ function updateAdOnly() {
     { data: "Sáb., 15/08", hora: "21:00", home: "São Paulo", away: "Coritiba", comp: "Campeonato Brasileiro" },
     { data: "Ter., 18/08", hora: "21:30", home: "São Paulo", away: "Bolívar", comp: "CONMEBOL Sudamericana · Oitavas de final · Jogo 2 de 2" },
     { data: "Dom., 23/08", hora: "18:30", home: "Chapecoense", away: "São Paulo", comp: "Campeonato Brasileiro" },
-    { data: "30/08", hora: "A confirmar", home: "São Paulo", away: "Bragantino", comp: "Campeonato Brasileiro" },
-    { data: "06/09", hora: "A confirmar", home: "São Paulo", away: "Atlético-MG", comp: "Campeonato Brasileiro" },
+    { data: "Sáb., 29/08", hora: "20:00", home: "São Paulo", away: "Bragantino", comp: "Campeonato Brasileiro" },
+    { data: "05/09", hora: "18:30", home: "São Paulo", away: "Atlético-MG", comp: "Campeonato Brasileiro" },
+    { data: "Ter., 16/09", hora: "A confirmar", home: "Boca Juniors", away: "São Paulo", comp: "CONMEBOL Sudamericana · Quartas de final · Jogo 1 de 2" },
     { data: "13/09", hora: "A confirmar", home: "Palmeiras", away: "São Paulo", comp: "Campeonato Brasileiro" },
     { data: "20/09", hora: "A confirmar", home: "São Paulo", away: "Internacional", comp: "Campeonato Brasileiro" },
     { data: "07/10", hora: "A confirmar", home: "Cruzeiro", away: "São Paulo", comp: "Campeonato Brasileiro" },
     { data: "11/10", hora: "A confirmar", home: "São Paulo", away: "EC Vitória", comp: "Campeonato Brasileiro" },
-    { data: "18/10", hora: "A confirmar", home: "São Paulo", away: "Vasco da Gama", comp: "Campeonato Brasileiro" }
+    { data: "18/10", hora: "A confirmar", home: "São Paulo", away: "Vasco da Gama", comp: "Campeonato Brasileiro" },
+    { data: "10/25", hora: "A confirmar", home: "Mirassol", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "28/10", hora: "A confirmar", home: "Bahia", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "04/11", hora: "A confirmar", home: "São Paulo", away: "Corinthians", comp: "Campeonato Brasileiro" },
+    { data: "18/11", hora: "A confirmar", home: "São Paulo", away: "Fluminense", comp: "Campeonato Brasileiro" },
+    { data: "22/11", hora: "A confirmar", home: "Botafogo", away: "São Paulo", comp: "Campeonato Brasileiro" },
+    { data: "29/11", hora: "A confirmar", home: "São Paulo", away: "Remo", comp: "Campeonato Brasileiro" },
+    { data: "02/12", hora: "A confirmar", home: "Athletico-PR", away: "São Paulo", comp: "Campeonato Brasileiro" }
   ];
   const crestOrInitial = (nome) => {
     const url = CRESTS[nome];
@@ -2646,6 +2663,39 @@ function updateAdOnly() {
     if (!url) return fallback;
     return `<img src="${esc(url)}" alt="${esc(nome)}" class="w-10 h-10 object-contain shrink-0" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white gradient-hero shrink-0',textContent:'${esc((nome||"?")[0])}'}))" />`;
   };
+
+  // ===== CONTAGEM REGRESSIVA DO PRÓXIMO JOGO =====
+  // Tenta extrair uma data/hora real a partir dos textos livres de "data" e "hora"
+  // (ex: "Sáb., 08/08" + "21:00"). Se não achar dia/mês (jogo adiado, sem data
+  // marcada etc.), retorna null e a contagem simplesmente não aparece.
+  function parseJogoDateTime(j){
+    const dm = (j.data||"").match(/(\d{1,2})\/(\d{1,2})/);
+    if(!dm) return null;
+    const dia = +dm[1], mes = +dm[2]-1;
+    const hm = (j.hora||"").match(/(\d{1,2}):(\d{2})/);
+    const hora = hm ? +hm[1] : 16, min = hm ? +hm[2] : 0;
+    let ano = new Date().getFullYear();
+    let dt = new Date(ano, mes, dia, hora, min);
+    // Se a data calculada ficou muito no passado, provavelmente é jogo do
+    // próximo ano (ex.: calendário virando dezembro/janeiro) — soma 1 ano.
+    if(dt.getTime() < Date.now() - 200*24*60*60*1000) dt = new Date(ano+1, mes, dia, hora, min);
+    return { dt, horaExata: !!hm };
+  }
+
+  function countdownTexto(info){
+    if(!info) return "";
+    const diff = info.dt.getTime() - Date.now();
+    if(diff <= 0 && diff > -3*60*60*1000) return "🔴 Já deve estar rolando!";
+    if(diff <= -3*60*60*1000) return "";
+    const dias = Math.floor(diff/86400000);
+    const horas = Math.floor((diff%86400000)/3600000);
+    const minutos = Math.floor((diff%3600000)/60000);
+    let txt;
+    if(dias >= 1) txt = `Faltam ${dias} dia${dias>1?"s":""}`;
+    else if(horas >= 1) txt = `Faltam ${horas}h ${minutos}min`;
+    else txt = `Faltam ${minutos}min`;
+    return info.horaExata ? txt : `${txt} (horário a confirmar)`;
+  }
 
   function pageContent(key){
     switch(key){
@@ -2706,13 +2756,38 @@ case "historia":
             </div>
           </div>`).join("")}</div>`);
       case "jogos":{
-        return section(`${ic("calendar","w-5 h-5 inline -mt-1")} Próximos Jogos`,`<div class="space-y-3">${JOGOS.map(j=>{
+        const proximoIdx = JOGOS.findIndex(j=>!state.placares[jogoId(j)]);
+        const filtro = state.jogosFiltro || "proximos";
+        const listaBase = JOGOS
+          .map((j,idx)=>({j, idx}))
+          .filter(({j})=> filtro==="proximos" ? !state.placares[jogoId(j)] : !!state.placares[jogoId(j)]);
+        const lista = filtro==="resultados" ? [...listaBase].reverse() : listaBase;
+        const toggleHtml = `
+          <div class="flex items-center gap-2 mb-3.5">
+            <button data-act="filtroJogos" data-key="proximos" class="flex-1 rounded-lg py-2 text-xs font-semibold transition ${filtro==="proximos"?"text-primary-foreground gradient-hero":"border border-border text-foreground hover:bg-secondary"}">Próximos</button>
+            <button data-act="filtroJogos" data-key="resultados" class="flex-1 rounded-lg py-2 text-xs font-semibold transition ${filtro==="resultados"?"text-primary-foreground gradient-hero":"border border-border text-foreground hover:bg-secondary"}">Resultados</button>
+          </div>`;
+        const listaHtml = lista.length ? lista.map(({j,idx})=>{
           const id = jogoId(j);
           const placar = state.placares[id];
           const isEditing = state.editingJogoId === id;
+          const ehProximo = idx === proximoIdx;
+          const countdown = ehProximo ? countdownTexto(parseJogoDateTime(j)) : "";
+          const bolaoAberto = state.boloes[id]?.aberto && !placar;
+          const meuPalpite = state.palpites[palpiteId(id, state.uid)];
+          const isEditingPalpite = state.palpiteEditingId === id;
+          const mandoCasa = j.home === "São Paulo";
           return `
-          <div class="rounded-xl border border-border bg-card p-4">
-            ${j.comp!=="Campeonato Brasileiro"?`<p class="text-[11px] uppercase tracking-wide opacity-60 text-foreground mb-2">${esc(j.comp)}</p>`:""}
+          <div class="rounded-xl border ${ehProximo?'border-primary':'border-border'} bg-card p-4 relative overflow-hidden">
+            ${ehProximo?`
+            <div class="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground rounded-full px-2.5 py-1 gradient-hero">⚡ Próximo jogo</span>
+              ${countdown?`<span class="text-[11px] font-bold text-primary">${esc(countdown)}</span>`:""}
+            </div>`:""}
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+              <span class="text-[10px] font-bold uppercase tracking-wide rounded-full px-2 py-0.5 ${mandoCasa?'bg-green-600/15 text-green-600':'bg-blue-600/15 text-blue-600'}">${mandoCasa?'🏠 Casa':'✈️ Fora'}</span>
+              ${j.comp!=="Campeonato Brasileiro"?`<p class="text-[11px] uppercase tracking-wide opacity-60 text-foreground">${esc(j.comp)}</p>`:""}
+            </div>
             <div class="flex items-center gap-3">
               <div class="flex-1 space-y-2 min-w-0">
                 <div>
@@ -2735,7 +2810,11 @@ case "historia":
                 <p class="text-xs font-bold text-foreground whitespace-nowrap">${esc(j.data)}</p>
                 <p class="text-[11px] opacity-70 text-foreground whitespace-nowrap">${esc(j.hora)}</p>
               </div>
-              ${isAdmin(state.user)?`<button data-act="editPlacar" data-id="${id}" title="Editar placar" class="shrink-0 h-8 w-8 rounded-lg flex items-center justify-center border border-border hover:bg-secondary text-foreground">${ic("edit","w-4 h-4")}</button>`:""}
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button data-act="shareJogo" data-id="${id}" title="Compartilhar jogo" class="h-8 w-8 rounded-lg flex items-center justify-center border border-border hover:bg-secondary text-foreground">${ic("share","w-4 h-4")}</button>
+                <button data-act="setPage" data-key="tv" title="Onde assistir" class="h-8 w-8 rounded-lg flex items-center justify-center border border-border hover:bg-secondary text-foreground">${ic("tv","w-4 h-4")}</button>
+                ${isAdmin(state.user)?`<button data-act="editPlacar" data-id="${id}" title="Editar placar" class="h-8 w-8 rounded-lg flex items-center justify-center border border-border hover:bg-secondary text-foreground">${ic("edit","w-4 h-4")}</button>`:""}
+              </div>
             </div>
             ${isEditing?`
               <div class="mt-3 pt-3 border-t border-border space-y-2">
@@ -2756,8 +2835,26 @@ case "historia":
                   <button data-act="cancelPlacar" class="rounded-lg px-3 py-1.5 text-xs font-semibold border border-border text-foreground hover:bg-secondary">Cancelar</button>
                 </div>
               </div>`:""}
+            ${bolaoAberto?`
+              <div class="mt-3 pt-3 border-t border-border">
+                ${isEditingPalpite?`
+                  <div class="flex items-center justify-center gap-2 flex-wrap">
+                    <input id="palpiteHomeInput" type="number" min="0" value="${esc(state.palpiteTempHome)}" class="w-14 rounded-lg border border-border bg-background px-2 py-1.5 text-center outline-none focus:ring-2 ring-ring text-foreground"/>
+                    <span class="text-xs opacity-60 text-foreground">x</span>
+                    <input id="palpiteAwayInput" type="number" min="0" value="${esc(state.palpiteTempAway)}" class="w-14 rounded-lg border border-border bg-background px-2 py-1.5 text-center outline-none focus:ring-2 ring-ring text-foreground"/>
+                    <button data-act="salvarPalpite" data-id="${id}" class="rounded-lg px-3 py-1.5 text-xs font-semibold text-primary-foreground gradient-hero">Salvar</button>
+                    <button data-act="cancelarPalpite" class="rounded-lg px-3 py-1.5 text-xs font-semibold border border-border text-foreground hover:bg-secondary">Cancelar</button>
+                  </div>`:
+                  meuPalpite?`
+                  <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <p class="text-sm text-foreground">${ic("target","w-4 h-4 inline -mt-0.5")} Seu palpite: <span class="font-bold">${meuPalpite.home} x ${meuPalpite.away}</span></p>
+                    <button data-act="editarPalpite" data-id="${id}" class="text-xs font-semibold rounded-lg px-2.5 py-1 border border-border text-foreground hover:bg-secondary">Editar</button>
+                  </div>`:
+                  `<button data-act="editarPalpite" data-id="${id}" class="w-full rounded-lg py-2 text-sm font-semibold text-primary-foreground gradient-hero flex items-center justify-center gap-1.5">${ic("target","w-4 h-4")} Dar palpite neste jogo</button>`}
+              </div>`:""}
           </div>`;
-        }).join("")}</div>`);
+        }).join("") : `<p class="text-sm text-muted-foreground text-center py-6">${filtro==="proximos"?"Nenhum jogo futuro cadastrado.":"Nenhum resultado registrado ainda."}</p>`;
+        return section(`${ic("calendar","w-5 h-5 inline -mt-1")} Próximos Jogos`,`${toggleHtml}<div class="space-y-3">${listaHtml}</div>`);
       }
       case "cardDiario":
         return section(`${ic("sparkle","w-5 h-5 inline -mt-1")} Card Diário`, `
@@ -3791,6 +3888,11 @@ case "loja": {
       case "closeThemes": if(!e.target.closest("[data-stop]")||t.tagName==="BUTTON") setState({showThemes:false}); break;
       case "pickTheme": state.themeIdx=+t.dataset.i; setState({showThemes:false}); break;
       case "share": shareApp(); break;
+      case "shareJogo": {
+        const jg = JOGOS.find(x=>jogoId(x)===t.dataset.id);
+        if(jg) shareJogo(jg);
+        break;
+      }
       case "openShare": setState({showShare:true, menuOpen:false}); break;
       case "openDownloadFaq": setState({showDownloadFaq:true, menuOpen:false}); break;
       case "closeDownloadFaq": if(!e.target.closest("[data-stop]")||t.tagName==="BUTTON") setState({showDownloadFaq:false}); break;
@@ -3895,6 +3997,7 @@ case "loja": {
         setState({ editingJogoId:id, tempHome: atual?String(atual.home):"", tempAway: atual?String(atual.away):"", tempGolsHome: atual?.golsHome||"", tempGolsAway: atual?.golsAway||"" });
         break;
       }
+      case "filtroJogos": setState({ jogosFiltro: t.dataset.key }); break;
       case "cancelPlacar": setState({ editingJogoId:null, tempHome:"", tempAway:"", tempGolsHome:"", tempGolsAway:"" }); break;
       case "savePlacar": {
         const id = t.dataset.id;
@@ -4048,6 +4151,61 @@ case "loja": {
     }catch{}
   }
 
+  // Compartilha um jogo específico da aba "Próximos Jogos" (melhoria #5)
+  async function shareJogo(j){
+    const url = location.href;
+    const texto = `⚽ ${j.home} x ${j.away} — ${j.data}${j.hora?` às ${j.hora}`:""}. Bora torcer junto no app do São Paulo! 🔴⚪⚫`;
+    const data = {title:"São Paulo FC", text:texto, url};
+    try{
+      if(navigator.share) await navigator.share(data);
+      else { await navigator.clipboard.writeText(`${texto}\n${url}`); state.shareMsg="Link copiado!"; render(); setTimeout(()=>{state.shareMsg=""; render();},2000); }
+    }catch{}
+  }
+
+  // ===== LEMBRETE AUTOMÁTICO DO BOT PERTO DO JOGO (melhoria #7) =====
+  // Verifica o próximo jogo (o primeiro sem placar) e, se estiver perto da hora
+  // marcada, o bot solta um aviso no chat. Cada aviso só é enviado uma vez por
+  // jogo: antes de postar, gravamos um "carimbo" no Firestore (coleção
+  // "lembretes", 1 documento por jogo) e checamos esse carimbo primeiro — assim,
+  // mesmo com vários visitantes com o app aberto ao mesmo tempo, a mensagem não
+  // se repete pra cada um deles.
+  // OBS: se as regras de segurança do Firestore ainda não liberarem leitura/escrita
+  // na coleção "lembretes", adicione algo como:
+  //   match /lembretes/{id} { allow read, write: if true; }
+  async function verificarLembreteJogo(){
+    try{
+      const proximo = JOGOS.find(j=>!state.placares[jogoId(j)]);
+      if(!proximo) return;
+      const info = parseJogoDateTime(proximo);
+      if(!info || !info.horaExata) return; // sem hora marcada, não dá pra avisar com precisão
+      const id = jogoId(proximo);
+      const minutosParaComeco = (info.dt.getTime() - Date.now()) / 60000;
+      const refLembrete = doc(db, "lembretes", id);
+
+      if(minutosParaComeco <= 60 && minutosParaComeco > 50){
+        const snap = await getDoc(refLembrete).catch(()=>null);
+        if(!snap?.exists() || !snap.data()?.umaHora){
+          await setDoc(refLembrete, { umaHora:true }, { merge:true });
+          await addDoc(collection(db, "mensagens"), {
+            author:"bot", nick:BOT.nick, avatar:BOT.avatar,
+            text:`⚽ Faltam menos de 1 hora! ${proximo.home} x ${proximo.away} já já começa. Bora torcer! 🔴⚪⚫`,
+            ts:Date.now(), reactions:{}
+          });
+        }
+      } else if(minutosParaComeco <= 0 && minutosParaComeco > -10){
+        const snap = await getDoc(refLembrete).catch(()=>null);
+        if(!snap?.exists() || !snap.data()?.comeco){
+          await setDoc(refLembrete, { comeco:true }, { merge:true });
+          await addDoc(collection(db, "mensagens"), {
+            author:"bot", nick:BOT.nick, avatar:BOT.avatar,
+            text:`🔴 Começou! ${proximo.home} x ${proximo.away}. Vamos SPFC! ⚫⚪`,
+            ts:Date.now(), reactions:{}
+          });
+        }
+      }
+    }catch(err){ console.warn("Lembrete de jogo falhou:", err); }
+  }
+
   // ===================== INTEGRAÇÃO COM O BOTÃO FÍSICO DE VOLTAR (ANDROID/KODULAR) =====================
   // O Kodular deve chamar esta função via WebViewer.RunJavaScript("handleAndroidBack()")
   // dentro do evento "Screen.BackPressed". Ela decide o que fazer dentro do app em vez de
@@ -4106,6 +4264,18 @@ case "loja": {
   setInterval(() => {
     if (state.entered && state.page === "tabela") fetchBrasileirao();
   }, 5*60*1000);
+
+  // Mantém a contagem regressiva do "Próximo jogo" atualizada sozinha,
+  // enquanto o usuário estiver na aba "Próximos Jogos"
+  setInterval(() => {
+    if (state.entered && state.page === "jogos") render();
+  }, 60*1000);
+
+  // Verifica a cada 1 minuto se está perto da hora do próximo jogo, pra soltar
+  // o lembrete do bot no chat (melhoria #7) — roda em qualquer aba, não só em "jogos"
+  setInterval(() => {
+    if (state.entered) verificarLembreteJogo();
+  }, 60*1000);
 
   // Executa o primeiro render logo de cara para abrir a tela de login
   render();
