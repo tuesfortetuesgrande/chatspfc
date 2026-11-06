@@ -768,6 +768,7 @@ const ADS = [
   const PAGES = [
     {key:"chat",label:"Chat",icon:"chat"},
     {key:"forum",label:"Fórum",icon:"forum"},
+    {key:"facebook",label:"Facebook",icon:"facebook"},
     {key:"tv",label:"TV Online",icon:"tv"},
     {key:"jogos",label:"Próximos Jogos",icon:"calendar",badge:true},
     {key:"cardDiario",label:"Card Diário",icon:"sparkle"},
@@ -1784,6 +1785,7 @@ const IDOLOS = [
       }
     }
     positionChatFrame();
+    positionFbFrame();
 
     // Reforço específico pro bug do visitante (sem cadastro): quem faz login com
     // cadastro ganha "de graça" um segundo render() (via onAuthStateChanged do
@@ -2698,8 +2700,63 @@ function updateAdOnly() {
     return info.horaExata ? txt : `${txt} (horário a confirmar)`;
   }
 
+  /* ===== FACEBOOK: feed da página (Page Plugin oficial do Facebook) =====
+     O iframe fica FORA do #app, igual ao do chat: assim ele não recarrega nem perde
+     a rolagem toda vez que o app chama render(). Ele só é posicionado por cima do
+     #fbSlot quando a aba "Facebook" está aberta; nas outras abas fica escondido. */
+  const FB_PAGE_URL = "https://www.facebook.com/tuesfortetuesgrandeoficial";
+  let fbFrameHost = null;
+  function positionFbFrame(){
+    const slot = document.getElementById("fbSlot");
+    const show = state.entered && state.page === "facebook" && !!slot;
+    if (!show) {
+      if (fbFrameHost) { fbFrameHost.style.display = "none"; fbFrameHost.style.pointerEvents = "none"; }
+      return;
+    }
+    if (!fbFrameHost) {
+      fbFrameHost = document.createElement("div");
+      fbFrameHost.id = "fbFrameHost";
+      fbFrameHost.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;z-index:25;display:none;pointer-events:none;justify-content:center;background:var(--card);transform:translateZ(0);-webkit-transform:translateZ(0)";
+      document.body.appendChild(fbFrameHost);
+    }
+    const r = slot.getBoundingClientRect();
+    fbFrameHost.style.left = r.left + "px";
+    fbFrameHost.style.top = r.top + "px";
+    fbFrameHost.style.width = r.width + "px";
+    fbFrameHost.style.height = r.height + "px";
+    fbFrameHost.style.display = "flex";
+    fbFrameHost.style.pointerEvents = "auto";
+    // O iframe só é criado na PRIMEIRA vez que a aba abre (carrega sob demanda).
+    if (!fbFrameHost.firstChild && r.width > 0 && r.height > 0) {
+      const w = Math.max(180, Math.min(500, Math.floor(r.width)));
+      const h = Math.max(300, Math.floor(r.height));
+      const fr = document.createElement("iframe");
+      fr.title = "Facebook";
+      fr.style.cssText = "border:0;width:" + w + "px;height:100%;background:#fff";
+      fr.setAttribute("allow", "encrypted-media");
+      fr.src = "https://www.facebook.com/plugins/page.php?href=" + encodeURIComponent(FB_PAGE_URL)
+        + "&tabs=timeline&width=" + w + "&height=" + h
+        + "&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true";
+      fbFrameHost.appendChild(fr);
+    }
+  }
+  window.addEventListener("resize", positionFbFrame);
+  window.addEventListener("orientationchange", () => requestAnimationFrame(positionFbFrame));
+  window.addEventListener("load", () => requestAnimationFrame(positionFbFrame));
+
   function pageContent(key){
     switch(key){
+      case "facebook": return `
+<div class="h-full flex flex-col bg-card">
+  <div class="shrink-0 px-5 pt-5 pb-3">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-2xl font-bold text-primary">${ic("facebook","w-5 h-5 inline -mt-1")} Facebook</h2>
+      <a href="${FB_PAGE_URL}" target="_blank" rel="noopener noreferrer" class="text-xs bg-primary text-primary-foreground rounded-full px-4 py-1.5 hover:opacity-80 transition whitespace-nowrap">Abrir no Facebook</a>
+    </div>
+    <p class="text-xs text-muted-foreground mt-1">Novidades da nossa página oficial. Se o feed não carregar, toque em “Abrir no Facebook”.</p>
+  </div>
+  <div id="fbSlot" class="flex-1 min-h-0"></div>
+</div>`;
       case "tv": return section(`${ic("tv","w-5 h-5 inline -mt-1")} TV Online`, `
 <center><span class="text-sm font-semibold text-green-500">● PREMIERE AO VIVO</span></center>
         <div class="relative w-full overflow-hidden rounded-2xl shadow-lg" style="padding-bottom:56.25%">
